@@ -88,6 +88,7 @@ def main():
         y_train = y_train[indices]
 
         epoch_loss = 0
+        num_batches = 0 
 
         for i in range(0, x_train.shape[0], args.batch_size):
 
