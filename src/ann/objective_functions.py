@@ -34,16 +34,23 @@ class CrossEntropyLoss:
 
         grad = self.probs.copy()
         grad[np.arange(m), self.y_true] -= 1
-        grad /= m
 
         return grad
-class MSELoss:
-      def forward(self, y_true, logits):
-          self.y_true = y_true
-          self.logits = logits
-          m = y_true.shape[0]
-          return np.sum((y_true - logits) ** 2) / m
 
-      def backward(self):
-          m = self.y_true.shape[0]
-          return 2 * (self.logits - self.y_true) / m       
+class MSELoss:
+    def forward(self, y_true, logits):
+
+        m = y_true.shape[0]
+        # One-hot encode labels
+        y_onehot = np.zeros_like(logits)
+        y_onehot[np.arange(m), y_true] = 1
+
+        self.y_onehot = y_onehot
+        self.logits = logits
+
+        loss = np.sum((y_onehot - logits) ** 2) / m
+        return loss
+
+    def backward(self):
+        m = self.y_onehot.shape[0]
+        return 2 * (self.logits - self.y_onehot) / m
