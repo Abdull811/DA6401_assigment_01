@@ -12,7 +12,7 @@ class NeuralLayer:
           else: 
                print("Error")
           
-          self.b = np.zeros(1, output_dim)
+          self.b = np.zeros((1, output_dim))
        
     # Forward pass of the layer
       def forward(self, x):

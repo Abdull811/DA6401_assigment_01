@@ -4,6 +4,10 @@ Evaluate trained models on test sets
 """
 
 import argparse
+import numpy as np
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from src.utils.data_loader import load_data
+from src.ann.neural_network import NeuralNetwork
 
 def parse_arguments():
     """
@@ -19,15 +23,42 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser(description='Run inference on test set')
     
+    parser.add_argument("-m", "--model_path", required=True,
+                        help="Relative path to saved model (.npy)")
+
+    parser.add_argument("-d", "--dataset", required=True,
+                        choices=["mnist", "fashion_mnist"])
+
+    parser.add_argument("-b", "--batch_size", type=int, default=64)
+
+    parser.add_argument("-sz", "--hidden_size", nargs="+", type=int, required=True)
+
+    parser.add_argument("-a", "--activation", required=True,
+                        choices=["relu", "sigmoid", "tanh"])
+
+    parser.add_argument("-l", "--loss", required=True,
+                        choices=["cross_entropy", "mse"])
+
+    parser.add_argument("-wi", "--weight_init", required=True,
+                        choices=["random", "xavier"])
+    
     return parser.parse_args()
 
-
-def load_model(model_path):
+def load_model(model_path, args):
     """
     Load trained model from disk.
     """
-    pass
+    model = NeuralNetwork(input_dim = 784, hidden_sizes=args.hidden_size,
+                          activation=args.activation, weight_init=args.weight_init, loss=args.loss)
+    
+    # Load weights
+    layers_data = np.load(args.model_path, allow_pickle=True)
 
+    for i, k in enumerate(model.layers):
+        k.w = layers_data[i]["w"]
+        k.b = layers_data[i]["b"]
+
+    return model    
 
 def evaluate_model(model, X_test, y_test): 
     """
@@ -35,8 +66,22 @@ def evaluate_model(model, X_test, y_test):
         
     TODO: Return Dictionary - logits, loss, accuracy, f1, precision, recall
     """
-    pass
+    # forward pass 
+    logits = model.forward(X_test)
+    # convert logits to predicted labels
+    y_pred = np.argmax(logits, axis=1)
+    # compute loss
+    y_onehot = np.eye(10)[y_test]
+    loss = model.loss_fn.forward(y_onehot, logits)
+    
+    # Accuracy, Precision, F1-score
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='weighted')
+    recall = recall_score(y_test, y_pred, average='weighted')
+    f1 = f1_score(y_test, y_pred, average='weighted')
 
+    return { "Logits": logits, "Loss": loss, "Accuracy": accuracy, 
+              "Precision": precision, "Recall": recall, "F1-Score": f1}
 
 def main():
     """
@@ -45,9 +90,22 @@ def main():
     TODO: Must return Dictionary - logits, loss, accuracy, f1, precision, recall
     """
     args = parse_arguments()
-    
+    # Load dataset
+    x_train, y_train, x_val, y_val, x_test, y_test = load_data(args.dataset)
+
+    # Load trained model
+    model = load_model(args)
+
+    # Evaluation metrices
+    results = evaluate_model(model, x_test, y_test)
+    print(f"Loss: {results['loss']:.4f}")
+    print(f"Accuracy: {results['accuracy']:.4f}")
+    print(f"Precision: {results['precision']:.4f}")
+    print(f"Recall: {results['recall']:.4f}")
+    print(f"F1-score: {results['f1']:.4f}")
     print("Evaluation complete!")
 
+    return results
 
 if __name__ == '__main__':
     main()

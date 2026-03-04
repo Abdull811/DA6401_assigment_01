@@ -16,8 +16,8 @@ class NeuralNetwork:
         self.layers = []
         self.activations = []
 
-        input_dim = cli_args.input_dim
-        hidden_sizes = cli_args.hidden_sizes
+        input_dim = 784
+        hidden_sizes = cli_args.hidden_size
         activation_name = cli_args.activation
         weight_init = cli_args.weight_init
         loss_name = cli_args.loss
@@ -119,7 +119,7 @@ class NeuralNetwork:
                 self.update_weights()
 
     def evaluate(self, X, y):
-        y_pred = self.forward(X)
+        logits = self.forward(X)
         if self.loss_name == "cross_entropy":
             predictions = np.argmax(y_pred, axis=1)
             true_labels = np.argmax(y, axis=1)
