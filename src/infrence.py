@@ -28,8 +28,9 @@ def parse_arguments():
 
     parser.add_argument("-d", "--dataset", required=True,
                         choices=["mnist", "fashion_mnist"])
-
-    parser.add_argument("-b", "--batch_size", type=int, default=64)
+    parser.add_argument("-nhl", "--num_layers",
+                        type=int,
+                        required=True)
 
     parser.add_argument("-sz", "--hidden_size", nargs="+", type=int, required=True)
 
@@ -41,24 +42,29 @@ def parse_arguments():
 
     parser.add_argument("-wi", "--weight_init", required=True,
                         choices=["random", "xavier"])
+    parser.add_argument("-wd", "--weight_decay",
+                        type=float,
+                        required=True)
+
+    parser.add_argument("-lr", "--learning_rate",
+                        type=float,
+                        required=True)
     
     return parser.parse_args()
 
-def load_model(model_path, args):
+def load_model(args):
     """
     Load trained model from disk.
     """
-    model = NeuralNetwork(input_dim = 784, hidden_sizes=args.hidden_size,
-                          activation=args.activation, weight_init=args.weight_init, loss=args.loss)
+    model = NeuralNetwork(args)
     
     # Load weights
     layers_data = np.load(args.model_path, allow_pickle=True)
 
-    for i, k in enumerate(model.layers):
-        k.w = layers_data[i]["w"]
-        k.b = layers_data[i]["b"]
+    weights = np.load(args.model_path, allow_pickle=True).item()
+    model.set_weights(weights)
 
-    return model    
+    return model   
 
 def evaluate_model(model, X_test, y_test): 
     """
@@ -71,8 +77,7 @@ def evaluate_model(model, X_test, y_test):
     # convert logits to predicted labels
     y_pred = np.argmax(logits, axis=1)
     # compute loss
-    y_onehot = np.eye(10)[y_test]
-    loss = model.loss_fn.forward(y_onehot, logits)
+    loss = model.loss_fn.forward(y_test, logits)
     
     # Accuracy, Precision, F1-score
     accuracy = accuracy_score(y_test, y_pred)
@@ -80,8 +85,8 @@ def evaluate_model(model, X_test, y_test):
     recall = recall_score(y_test, y_pred, average='weighted')
     f1 = f1_score(y_test, y_pred, average='weighted')
 
-    return { "Logits": logits, "Loss": loss, "Accuracy": accuracy, 
-              "Precision": precision, "Recall": recall, "F1-Score": f1}
+    return { "logits": logits, "loss": loss, "accuracy": accuracy, 
+              "precision": precision, "recall": recall, "f1": f1}
 
 def main():
     """
@@ -91,7 +96,7 @@ def main():
     """
     args = parse_arguments()
     # Load dataset
-    x_train, y_train, x_val, y_val, x_test, y_test = load_data(args.dataset)
+    _, _, _, _, x_test, y_test = load_data(args.dataset)
 
     # Load trained model
     model = load_model(args)

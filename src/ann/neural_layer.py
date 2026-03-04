@@ -4,16 +4,20 @@ import numpy as np
 class NeuralLayer:
       # Weight and bias initialization
       def __init__(self, input_dim, output_dim, weight_init):
-          std = np.sqrt(2.0 / (input_dim + output_dim)) # std for xavier
+          
           if weight_init == "random":
-             self.w = np.random.randn(input_dim, output_dim)
+             self.w = np.random.randn(input_dim, output_dim) ** 0.01
           elif weight_init ==  "xavier":
+               std = np.sqrt(2.0 / (input_dim + output_dim)) # std for xavier
                self.w = np.random.randn(input_dim, output_dim) * std
           else: 
-               print("Error")
+               raise ValueError("weight_init must be 'random' or 'xavier'")
           
           self.b = np.zeros((1, output_dim))
-       
+          # Initialize gradients
+          self.grad_w = np.zeros_like(self.w)
+          self.grad_b = np.zeros_like(self.b)
+
     # Forward pass of the layer
       def forward(self, x):
            self.x = x 

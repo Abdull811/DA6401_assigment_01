@@ -4,7 +4,7 @@ Handles forward and backward propagation loops
 """
 import numpy as np
 from src.ann.neural_layer import NeuralLayer
-from src.ann.activations import Relu, Sigmoid, Tanh
+from src.ann.activations import ReLu, Sigmoid, Tanh
 from src.ann.objective_functions import CrossEntropyLoss, MSELoss
 
 class NeuralNetwork:
@@ -22,16 +22,18 @@ class NeuralNetwork:
         weight_init = cli_args.weight_init
         loss_name = cli_args.loss
         self.loss_name = cli_args.loss
+        self.weight_decay = cli_args.weight_decay
+        self.learning_rate  = cli_args.learning_rate
 
-        new_dim = [input_dim] + hidden_sizes + [10]
+        layer_dim = [input_dim] + hidden_sizes + [10]
         # Layers
-        for i in range(len(new_dim)-1):
-            self.layers.append(NeuralLayer(new_dim[i], new_dim[i + 1], weight_init))
+        for i in range(len(layer_dim)-1):
+            self.layers.append(NeuralLayer(layer_dim[i], layer_dim[i + 1], weight_init))
 
             # Activation function for hidden layers
-            if i < len(new_dim) - 2:
+            if i < len(layer_dim) - 2:
                if activation_name == "relu" :
-                   self.activations.append(Relu())
+                   self.activations.append(ReLu())
                elif activation_name == "sigmoid":
                    self.activations.append(Sigmoid())
                elif activation_name == "tanh" :
@@ -60,8 +62,8 @@ class NeuralNetwork:
             x_v = self.activations[i].forward(z)
 
         # Last layer 
-        y_pred = self.layers[-1].forward(x_v)
-        return y_pred   
+        logits = self.layers[-1].forward(x_v)
+        return logits   
 
     def backward(self, y_true, y_pred):
         """
@@ -76,8 +78,8 @@ class NeuralNetwork:
         grad_W_list = []
         grad_b_list = []
 
-        # Backprop through layers in reverse; collect grads so that index 0 = last layer
-        # LAst layer backpropagation
+        # Backprop through layers in reverse
+        # Output layer backpropagation
         da = self.layers[-1].backward(dz, self.weight_decay)
         grad_W_list.append(self.layers[-1].grad_w)
         grad_b_list.append(self.layers[-1].grad_b)
@@ -90,7 +92,8 @@ class NeuralNetwork:
             grad_W_list.append(self.layers[i].grad_w)
             grad_b_list.append(self.layers[i].grad_b)
 
-        # create explicit object arrays to avoid numpy trying to broadcast shapes
+        # Create explicit object arrays to avoid numpy trying to broadcast shapes
+        # For store gradients
         self.grad_W = np.empty(len(grad_W_list), dtype=object)
         self.grad_b = np.empty(len(grad_b_list), dtype=object)
         for i, (gw, gb) in enumerate(zip(grad_W_list, grad_b_list)):
@@ -103,8 +106,8 @@ class NeuralNetwork:
     
     # weight update
     def update_weights(self):
-        for i, j in enumerate(self.layers):
-            j.W -= self.learning_rate * j.grad_w
+        for j in self.layers:
+            j.w -= self.learning_rate * j.grad_w
             j.b -= self.learning_rate * j.grad_b
     
     # Training
@@ -114,33 +117,35 @@ class NeuralNetwork:
             for i in range(0, n, batch_size):
                 X_batch = X_train[i:i + batch_size]
                 y_batch = y_train[i:i + batch_size]
-                y_pred = self.forward(X_batch)
-                self.backward(y_batch, y_pred)
+                logits = self.forward(X_batch)
+                self.backward(y_batch, logits)
                 self.update_weights()
-
+    # evaluation
     def evaluate(self, X, y):
         logits = self.forward(X)
         if self.loss_name == "cross_entropy":
-            predictions = np.argmax(y_pred, axis=1)
+            predictions = np.argmax(logits, axis=1)
             true_labels = np.argmax(y, axis=1)
             accuracy = np.mean(predictions == true_labels)
             return accuracy
         else:
-            mse = self.loss_fn.forward(y, y_pred)
-            return mse
-
+            loss = self.loss_fn.forward(y, y_pred)
+            return loss
+    
+    # save weights 
     def get_weights(self):
-        d = {}
+        weights = {}
         for i, layer in enumerate(self.layers):
-            d[f"W{i}"] = layer.W.copy()
-            d[f"b{i}"] = layer.b.copy()
-        return d
-
+            weights[f"W{i}"] = layer.w.copy()
+            weights[f"b{i}"] = layer.b.copy()
+        return weights
+    
+    # Load weights
     def set_weights(self, weight_dict):
         for i, layer in enumerate(self.layers):
-            w_key = f"W{i}"
+            w_key = f"w{i}"
             b_key = f"b{i}"
             if w_key in weight_dict:
-                layer.W = weight_dict[w_key].copy()
+                layer.w = weight_dict[w_key].copy()
             if b_key in weight_dict:
                 layer.b = weight_dict[b_key].copy()

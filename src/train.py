@@ -53,8 +53,6 @@ def parse_arguments():
     
     return parser.parse_args()
 
-def one_hot(y, num_classes=10):
-    return np.eye(num_classes)[y]
 
 def main():
     """
@@ -65,24 +63,21 @@ def main():
     # Load Dataset
     x_train, y_train, x_val, y_val, x_test, y_test = load_data(args.dataset)
 
-    y_train = one_hot(y_train)
-    y_val = one_hot(y_val)
-    
     # Model initialization
     model = NeuralNetwork(args)
     
     # Initialize SGD, Momentum, NAG, RMSProp Optimizers
     if args.optimizer == "sgd":
-        optimizer = SGD(args.learning_rate, args.weight_decay)
+        optimizer = SGD(args.learning_rate)
 
     elif args.optimizer == "momentum":
-        optimizer = Momentum(args.learning_rate, weight_decay=args.weight_decay)
+        optimizer = Momentum(args.learning_rate)
 
     elif args.optimizer == "nag":
-        optimizer = NAG(args.learning_rate, weight_decay=args.weight_decay)
+        optimizer = NAG(args.learning_rate)
 
     elif args.optimizer == "rmsprop":
-        optimizer = RMSProp(args.learning_rate, weight_decay=args.weight_decay)
+        optimizer = RMSProp(args.learning_rate)
     
     # Training loop
     best_val_acc = 0
@@ -105,12 +100,14 @@ def main():
             # Compute loss
             loss = model.loss_fn.forward(y_batch, logits)
             epoch_loss += loss
+            num_batches+= 1
 
             # Backward pass
             model.backward(y_batch, logits)
             # Update weights
             optimizer.update(model.layers)
-
+        
+        epoch_loss /= num_batches
         # Validation Accuracy
         val_logits = model.forward(x_val)
         val_pred = np.argmax(val_logits, axis=1)
@@ -125,15 +122,11 @@ def main():
         # Best Model
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-
-            weights = []
-            for layer in model.layers:
-                weights.append({ "w": layer.w.copy(), 
-                                "b": layer.b.copy()})
-
-            np.save(args.model_save_path, weights, allow_pickle=True)
+            weights = model.get_weights()
+            np.save(args.model_save_path, weights)
 
     print("Training complete!")
+    print(f"Best validation accuracy: {best_val_acc:.4f}")
 
 if __name__ == '__main__':
     main()

@@ -1,10 +1,10 @@
 """Activation Functions and TIt's Derivatives
-Implements: ReLU, Sigmoid, Tanh, Softmax
+Implements: ReLU, Sigmoid, Tanh
 """
 
 import numpy as np
 # ReLu function
-class Relu:
+class ReLu:
      def forward(self, z):
           self.z = z
           return np.maximum(0,z)
@@ -15,6 +15,7 @@ class Relu:
 # Sigmoid function forward and backward    
 class Sigmoid:    
      def forward(self, z):
+         z = np.clip(z, -500, 500)
          self.a = 1 / ( 1 + np.exp(-z))
          return self.a
      

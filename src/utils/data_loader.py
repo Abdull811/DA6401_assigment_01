@@ -10,7 +10,7 @@ def load_data(name):
     elif name == 'fashion_mnist':
       (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
     else:
-       print()
+       raise ValueError("Dataset must be 'mnist' or 'fashion_mnist'")
 
     # Normalize x_train, x_test dataset
     x_train = (x_train/255.0).astype(np.float32)
