@@ -113,9 +113,8 @@ def main():
         # Validation Accuracy
         val_logits = model.forward(x_val)
         val_pred = np.argmax(val_logits, axis=1)
-        val_true = np.argmax(y_val, axis=1)
-
-        val_acc = np.mean(val_pred == val_true)
+        
+        val_acc = np.mean(val_pred == y_val)
 
         print(f"Epoch {epoch+1}/{args.epochs} | "
               f"Loss: {epoch_loss:.4f} | "
