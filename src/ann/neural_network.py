@@ -105,10 +105,10 @@ class NeuralNetwork:
         return self.grad_W, self.grad_b
     
     # weight update
-    def update_weights(self):
-        for j in self.layers:
-            j.w -= self.learning_rate * j.grad_w
-            j.b -= self.learning_rate * j.grad_b
+    #def update_weights(self):
+     #   for j in self.layers:
+      #      j.w -= self.learning_rate * j.grad_w
+       #     j.b -= self.learning_rate * j.grad_b
     
     # Training
     def train(self, X_train, y_train, epochs=1, batch_size=32):
@@ -123,20 +123,16 @@ class NeuralNetwork:
     # evaluation
     def evaluate(self, X, y):
         logits = self.forward(X)
-        if self.loss_name == "cross_entropy":
-            predictions = np.argmax(logits, axis=1)
-            true_labels = y
-            accuracy = np.mean(predictions == true_labels)
-            return accuracy
-        else:
-            loss = self.loss_fn.forward(y, y_pred)
-            return loss
+        predictions = np.argmax(logits, axis=1)
+        accuracy = np.mean(predictions == y)
+        
+        return accuracy
     
     # save weights 
     def get_weights(self):
         weights = {}
         for i, layer in enumerate(self.layers):
-            weights[f"W{i}"] = layer.w.copy()
+            weights[f"w{i}"] = layer.w.copy()
             weights[f"b{i}"] = layer.b.copy()
         return weights
     

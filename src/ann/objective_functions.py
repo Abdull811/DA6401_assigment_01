@@ -34,7 +34,7 @@ class CrossEntropyLoss:
 
         grad = self.probs.copy()
         grad[np.arange(m), self.y_true] -= 1
-        grad = m
+        grad /= m
 
         return grad
 class MSELoss:
