@@ -125,7 +125,7 @@ class NeuralNetwork:
         logits = self.forward(X)
         if self.loss_name == "cross_entropy":
             predictions = np.argmax(logits, axis=1)
-            true_labels = np.argmax(y, axis=1)
+            true_labels = y
             accuracy = np.mean(predictions == true_labels)
             return accuracy
         else:
