@@ -25,30 +25,18 @@ def parse_arguments():
     
     parser.add_argument("-m", "--model_path", required=True,
                         help="Relative path to saved model (.npy)")
-
     parser.add_argument("-d", "--dataset", required=True,
                         choices=["mnist", "fashion_mnist"])
-    parser.add_argument("-nhl", "--num_layers",
-                        type=int,
-                        required=True)
-
+    parser.add_argument("-nhl", "--num_layers", type=int, required=True)
     parser.add_argument("-sz", "--hidden_size", nargs="+", type=int, required=True)
-
     parser.add_argument("-a", "--activation", required=True,
                         choices=["relu", "sigmoid", "tanh"])
-
     parser.add_argument("-l", "--loss", required=True,
                         choices=["cross_entropy", "mse"])
-
     parser.add_argument("-wi", "--weight_init", required=True,
                         choices=["random", "xavier"])
-    parser.add_argument("-wd", "--weight_decay",
-                        type=float,
-                        required=True)
-
-    parser.add_argument("-lr", "--learning_rate",
-                        type=float,
-                        required=True)
+    parser.add_argument("-wd", "--weight_decay", type=float, required=True)
+    parser.add_argument("-lr", "--learning_rate", type=float, required=True)
     
     return parser.parse_args()
 

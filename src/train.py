@@ -5,6 +5,7 @@ Entry point for training neural networks with command-line arguments
 
 import argparse
 import numpy as np
+import wandb
 from src.utils.data_loader import load_data
 from src.ann.neural_network import NeuralNetwork
 from src.ann.optimizers import SGD, Momentum, NAG, RMSProp
@@ -30,13 +31,9 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Train a neural network')
     parser.add_argument("-d", "--dataset", required=True,
                         choices=["mnist", "fashion_mnist"])
-
     parser.add_argument("-e", "--epochs", type=int, required=True)
-
     parser.add_argument("-b", "--batch_size", type=int, required=True)
-
     parser.add_argument("-lr", "--learning_rate", type=float, required=True)
-
     parser.add_argument("-o", "--optimizer", required=True,
                         choices=["sgd", "momentum", "nag", "rmsprop"])
     parser.add_argument("-nhl", "--num_layers", type=int, required=True)
@@ -53,13 +50,15 @@ def parse_arguments():
     
     return parser.parse_args()
 
-
 def main():
     """
     Main training function.
     """
     args = parse_arguments()
     
+    wandb.init(project="da6401_Assigment_01_weight_bias",
+               config=vars(args))
+
     # Load Dataset
     x_train, y_train, x_val, y_val, x_test, y_test = load_data(args.dataset)
 
@@ -113,9 +112,12 @@ def main():
         # Validation Accuracy
         val_logits = model.forward(x_val)
         val_pred = np.argmax(val_logits, axis=1)
-        
-        val_acc = np.mean(val_pred == y_val)
 
+        val_acc = np.mean(val_pred == y_val)
+        
+        wandb.log({"epoch":epoch, "train_loss":epoch_loss,
+                   "val_accuracy": val_acc})
+        
         print(f"Epoch {epoch+1}/{args.epochs} | "
               f"Loss: {epoch_loss:.4f} | "
               f"Val Accuracy: {val_acc:.4f}")
