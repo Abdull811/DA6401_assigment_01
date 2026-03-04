@@ -108,7 +108,8 @@ def main():
             # Update weights
             optimizer.update(model.layers)
         
-        epoch_loss /= num_batches
+        if num_batches > 0:
+           epoch_loss /= num_batches
         # Validation Accuracy
         val_logits = model.forward(x_val)
         val_pred = np.argmax(val_logits, axis=1)
