@@ -6,6 +6,7 @@ Entry point for training neural networks with command-line arguments
 import argparse
 import numpy as np
 import wandb
+from sklearn.metrics import confusion_matrix 
 from src.utils.data_loader import load_data
 from src.ann.neural_network import NeuralNetwork
 from src.ann.optimizers import SGD, Momentum, NAG, RMSProp
@@ -64,6 +65,16 @@ def main():
 
     # Model initialization
     model = NeuralNetwork(args)
+
+    table = wandb.Table(columns=["Image", "Label"])
+
+    for v in range(10):
+        ind = np.where(y_train == v)[0][:5]
+        for q in ind:
+            img = x_train[q].reshape(28, 28)
+            table.add_data(wandb.Image(img), v)
+    
+    wandb.log({"MNIST Samples":table})
     
     # Initialize SGD, Momentum, NAG, RMSProp Optimizers
     if args.optimizer == "sgd":
@@ -130,6 +141,20 @@ def main():
 
     print("Training complete!")
     print(f"Best validation accuracy: {best_val_acc:.4f}")
+
+    # load best model
+    best_weights = np.load(args.model_save_path, allow_pickle=True).item()
+    model.set_weights(best_weights)
+
+    # test evaluation
+    test_logits = model.forward(x_test)
+    test_pred = np.argmax(test_logits, axis=1)
+    test_acc = np.mean(test_pred == y_test)
+    print(f"Test Accuracy: {test_acc:.4f}")
+    wandb.log({"test_accuracy": test_acc})
+
+    # log confusion matrix
+    wandb.log({"confusion_matrix": wandb.plot.confusion_matrix(probs=None, y_true=y_test, preds=test_pred)})
 
 if __name__ == '__main__':
     main()

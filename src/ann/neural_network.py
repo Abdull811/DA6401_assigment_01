@@ -3,6 +3,7 @@ Main Neural Network Model class
 Handles forward and backward propagation loops
 """
 import numpy as np
+import wandb
 from src.ann.neural_layer import NeuralLayer
 from src.ann.activations import ReLu, Sigmoid, Tanh
 from src.ann.objective_functions import CrossEntropyLoss, MSELoss
@@ -60,7 +61,11 @@ class NeuralNetwork:
         for i in range(len(self.activations)):
             z = self.layers[i].forward(x_v)
             x_v = self.activations[i].forward(z)
-
+            
+            # log activation stats for first hidden layer
+            if i == 0:
+                wandb.log({"layer1_activation_mean": np.mean(x_v), # logs mean activation 
+                           "layer1_activation_fraction": np.mean(x_v == 0)}) # logs fraction of neuron that output =0
         # Last layer 
         logits = self.layers[-1].forward(x_v)
         return logits   
@@ -91,6 +96,17 @@ class NeuralNetwork:
 
             grad_W_list.append(self.layers[i].grad_w)
             grad_b_list.append(self.layers[i].grad_b)
+            
+        # Log gradient normalization of first hidden layer
+        if len(self.layers) > 1:
+            grad_norm_layer1 = np.linalg.norm(self.layers[0].grad_w)
+            wandb.log({"grad_layer1_norm": grad_norm_layer1})
+
+        # log gradient of 5 neuroins in first layer
+        if len(self.layers) > 0:
+            first_layer_grad = self.layers[0].grad_w
+            for nidx in range(min(5, first_layer_grad.shape[0])): # For 1st 5 neuron
+                wandb.log({f"grad_neuron_{nidx}": np.linalg.norm(first_layer_grad[nidx])})
 
         # Create explicit object arrays to avoid numpy trying to broadcast shapes
         # For store gradients
@@ -100,8 +116,8 @@ class NeuralNetwork:
             self.grad_W[i] = gw
             self.grad_b[i] = gb
 
-        print("Shape of grad_Ws:", self.grad_W.shape, self.grad_W[1].shape)
-        print("Shape of grad_bs:", self.grad_b.shape, self.grad_b[1].shape)
+        #print("Shape of grad_Ws:", self.grad_W.shape, self.grad_W[1].shape)
+        #print("Shape of grad_bs:", self.grad_b.shape, self.grad_b[1].shape)
         return self.grad_W, self.grad_b
     
     # weight update
