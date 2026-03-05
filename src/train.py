@@ -6,6 +6,7 @@ Entry point for training neural networks with command-line arguments
 import argparse
 import numpy as np
 import wandb
+import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix 
 from src.utils.data_loader import load_data
 from src.ann.neural_network import NeuralNetwork
@@ -71,7 +72,7 @@ def main():
     args.loss = config.loss
     args.epochs = config.epochs
     args.dataset = config.dataset
-    
+
     # Load Dataset
     x_train, y_train, x_val, y_val, x_test, y_test = load_data(args.dataset)
 
@@ -103,12 +104,14 @@ def main():
     
     # Training loop
     best_val_acc = 0
+    train_losses = []
+    val_accuracies = []
     for epoch in range(args.epochs):
         # Random training data
         indices = np.random.permutation(x_train.shape[0])
         x_train = x_train[indices]
         y_train = y_train[indices]
-
+        
         epoch_loss = 0
         num_batches = 0 
 
@@ -132,11 +135,14 @@ def main():
         
         if num_batches > 0:
            epoch_loss /= num_batches
+           train_losses.append(epoch_loss)
         # Validation Accuracy
         val_logits = model.forward(x_val)
         val_pred = np.argmax(val_logits, axis=1)
 
-        val_acc = np.mean(val_pred == y_val)
+        val_acc = np.mean(y_val, val_pred)
+        val_accuracies.append(val_acc)
+        wandb.log({"val_accuracy": val_acc})
         
         wandb.log({"epoch":epoch, "train_loss":epoch_loss,
                    "val_accuracy": val_acc})
@@ -150,6 +156,25 @@ def main():
             best_val_acc = val_acc
             weights = model.get_weights()
             np.save(args.model_save_path, weights)
+    
+    # Training loss curve
+    plt.figure()
+    plt.plot(train_losses)
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Training Loss Curve")
+
+    wandb.log({"Training Loss Curve ": wandb.Image(plt)})
+    plt.close()
+
+    plt.figure()
+    plt.plot(val_accuracies)
+    plt.xlabel("Epoch")
+    plt.ylabel("Validation Accuracy")
+    plt.title("Validation Accuracy Curve")
+
+    wandb.log({"Validation Accuracy Curve": wandb.Image(plt)})
+    plt.close()
 
     print("Training complete!")
     print(f"Best validation accuracy: {best_val_acc:.4f}")
@@ -165,8 +190,36 @@ def main():
     print(f"Test Accuracy: {test_acc:.4f}")
     wandb.log({"test_accuracy": test_acc})
 
-    # log confusion matrix
-    wandb.log({"confusion_matrix": wandb.plot.confusion_matrix(probs=None, y_true=y_test, preds=test_pred)})
+    # Compute confusion matrix
+    cm = confusion_matrix(y_test, test_pred)
+    # Plot confusion matrix
+    fig, ax = plt.subplots(figsize=(8,6))
+    im = ax.imshow(cm, cmap="Blues")
+
+    # Labels
+    classes = [str(i) for i in range(10)]
+    ax.set_xticks(np.arange(len(classes)))
+    ax.set_yticks(np.arrange(len(classes)))
+
+    ax.set_xticklabels(classes)
+    ax.set_yticklabels(classes)
+
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True :abel")
+    plt.title("Confusion Matrix")
+
+    # Annotate values
+    for i in range(len(classes)):
+        for j in range(len(classes)):
+            ax.text(j, i, cm[i, j], ha="center", 
+                    va="center", color="black")
+
+    plt.colorbar(im) 
+
+    # log to wandb
+    wandb.log({"Confusion Matrix": wandb.Image(fig)})
+    plt.close(fig)       
+
 
 if __name__ == '__main__':
     main()
