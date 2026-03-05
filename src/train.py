@@ -59,7 +59,19 @@ def main():
     
     wandb.init(project="da6401_Assigment_01_weight_bias",
                config=vars(args))
-
+    config = wandb.config
+    args.batch_size = config.batch_size
+    args.learning_rate = config.learning_rate
+    args.optimizer = config.optimizer
+    args.activation = config.activation
+    args.hidden_size = config.hidden_size
+    args.weight_decay = config.weight_decay
+    args.weight_init = config.weight_init
+    args.num_layers = config.num_layers
+    args.loss = config.loss
+    args.epochs = config.epochs
+    args.dataset = config.dataset
+    
     # Load Dataset
     x_train, y_train, x_val, y_val, x_test, y_test = load_data(args.dataset)
 
