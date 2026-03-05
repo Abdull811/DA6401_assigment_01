@@ -39,8 +39,8 @@ class Momentum:
         for i, j in enumerate(layers):
 
             # Velocity update
-            self.v_w[i] = self.beta * self.v_w[i] + i.grad_w
-            self.v_b[i] = self.beta * self.v_b[i] + i.grad_b
+            self.v_w[i] = self.beta * self.v_w[i] + j.grad_w
+            self.v_b[i] = self.beta * self.v_b[i] + j.grad_b
 
             # Parameter update
             j.w -= self.lr * self.v_w[i]

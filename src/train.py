@@ -58,7 +58,7 @@ def main():
     """
     args = parse_arguments()
     
-    wandb.init(project="da6401_Assigment_01_weight_bias",
+    wandb.init(project=args.wandb_project or "da6401_Assigment_01_weight_bias",
                config=vars(args))
     config = wandb.config
     args.batch_size = config.batch_size
@@ -140,7 +140,7 @@ def main():
         val_logits = model.forward(x_val)
         val_pred = np.argmax(val_logits, axis=1)
 
-        val_acc = np.mean(y_val, val_pred)
+        val_acc = np.mean(y_val == val_pred)
         val_accuracies.append(val_acc)
         wandb.log({"val_accuracy": val_acc})
         
@@ -199,13 +199,13 @@ def main():
     # Labels
     classes = [str(i) for i in range(10)]
     ax.set_xticks(np.arange(len(classes)))
-    ax.set_yticks(np.arrange(len(classes)))
+    ax.set_yticks(np.arange(len(classes)))
 
     ax.set_xticklabels(classes)
     ax.set_yticklabels(classes)
 
     plt.xlabel("Predicted Label")
-    plt.ylabel("True :abel")
+    plt.ylabel("True :Label")
     plt.title("Confusion Matrix")
 
     # Annotate values
