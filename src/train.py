@@ -82,12 +82,14 @@ def main():
     table = wandb.Table(columns=["Image", "Label"])
 
     for v in range(10):
-        ind = np.where(y_train == v)[0][:5]
-        for q in ind:
+        ind = np.where(y_train == v)[0]
+        random_ind = np.random.choice(ind, 5, replace=False)
+
+        for q in random_ind:
             img = x_train[q].reshape(28, 28)
             table.add_data(wandb.Image(img), v)
     
-    wandb.log({"MNIST Samples":table})
+    wandb.log({f"{args.dataset} Samples":table})
     
     # Initialize SGD, Momentum, NAG, RMSProp Optimizers
     if args.optimizer == "sgd":
@@ -170,6 +172,7 @@ def main():
     plt.title("Training Loss Curve")
 
     wandb.log({"Training Loss Curve ": wandb.Image(plt)})
+    wandb.log({"Training Loss Curve": wandb.Image(plt.gcf())})
     plt.close()
 
     plt.figure()
@@ -179,6 +182,7 @@ def main():
     plt.title("Validation Accuracy Curve")
 
     wandb.log({"Validation Accuracy Curve": wandb.Image(plt)})
+    wandb.log({"Validation Accuracy Curve": wandb.Image(plt.gcf())})
     plt.close()
 
     print("Training complete!")
