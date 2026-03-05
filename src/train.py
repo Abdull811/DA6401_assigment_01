@@ -136,16 +136,21 @@ def main():
         if num_batches > 0:
            epoch_loss /= num_batches
            train_losses.append(epoch_loss)
+
+        # Training accuracy
+        train_logits = model.forward(x_train)
+        train_pred = np.argmax(train_logits, axis=1)
+        train_acc = np.mean(train_pred == y_train)
+
         # Validation Accuracy
         val_logits = model.forward(x_val)
         val_pred = np.argmax(val_logits, axis=1)
 
         val_acc = np.mean(y_val == val_pred)
         val_accuracies.append(val_acc)
-        wandb.log({"val_accuracy": val_acc})
         
         wandb.log({"epoch":epoch, "train_loss":epoch_loss,
-                   "val_accuracy": val_acc})
+                   "train_accuracy" : train_acc, "val_accuracy": val_acc})
         
         print(f"Epoch {epoch+1}/{args.epochs} | "
               f"Loss: {epoch_loss:.4f} | "
@@ -193,7 +198,7 @@ def main():
     # Compute confusion matrix
     cm = confusion_matrix(y_test, test_pred)
     # Plot confusion matrix
-    fig, ax = plt.subplots(figsize=(8,6))
+    fig, ax = plt.subplots(figsize=(10,8))
     im = ax.imshow(cm, cmap="Blues")
 
     # Labels
@@ -204,20 +209,20 @@ def main():
     ax.set_xticklabels(classes)
     ax.set_yticklabels(classes)
 
-    plt.xlabel("Predicted Label")
-    plt.ylabel("True :Label")
-    plt.title("Confusion Matrix")
+    plt.xlabel("Predicted Label", fontsize=12)
+    plt.ylabel("True Label", fontsize=12)
+    plt.title("Confusion Matrix", fontsize=12)
 
     # Annotate values
     for i in range(len(classes)):
         for j in range(len(classes)):
-            ax.text(j, i, cm[i, j], ha="center", 
-                    va="center", color="black")
+            ax.text(j, i, cm[i, j], ha="center", va="center",
+                    color="white" if cm[i, j] > cm.max()/2 else "black")
 
-    plt.colorbar(im) 
-
+    plt.colorbar(im, ax=ax) 
+    plt.tight_layout()
     # log to wandb
-    wandb.log({"Confusion Matrix": wandb.Image(fig)})
+    wandb.log({"Confusion_matrix": wandb.Image(fig)})
     plt.close(fig)       
 
 
