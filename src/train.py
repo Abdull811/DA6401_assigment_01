@@ -80,9 +80,9 @@ def main():
     model = NeuralNetwork(args)
 
     table = wandb.Table(columns=["Image", "Label"])
-
+    y_labels = np.argmax(y_train, axis=1) if len(y_train.shape) > 1 else y_train
     for v in range(10):
-        ind = np.where(y_train == v)[0]
+        ind = np.where(y_labels == v)[0]
         random_ind = np.random.choice(ind, 5, replace=False)
 
         for q in random_ind:
