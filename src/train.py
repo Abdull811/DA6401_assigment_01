@@ -31,23 +31,18 @@ def parse_arguments():
     - model_save_path: Path to save trained model (do not give absolute path, rather provide relative path)
     """
     parser = argparse.ArgumentParser(description='Train a neural network')
-    parser.add_argument("-d", "--dataset", required=True,
-                        choices=["mnist", "fashion_mnist"])
-    parser.add_argument("-e", "--epochs", type=int, required=True)
-    parser.add_argument("-b", "--batch_size", type=int, required=True)
-    parser.add_argument("-lr", "--learning_rate", type=float, required=True)
-    parser.add_argument("-o", "--optimizer", required=True,
-                        choices=["sgd", "momentum", "nag", "rmsprop"])
-    parser.add_argument("-nhl", "--num_layers", type=int, required=True)
-    parser.add_argument("-sz", "--hidden_size", nargs="+", type=int, required=True)
-    parser.add_argument("-a", "--activation", required=True,
-                        choices=["relu", "sigmoid", "tanh"])
-    parser.add_argument("-l", "--loss", required=True,
-                        choices=["cross_entropy", "mse"])
-    parser.add_argument("-wd", "--weight_decay", type=float, required=True)
-    parser.add_argument("-wi", "--weight_init", required=True,
-                        choices=["random", "xavier"])
-    parser.add_argument("-wp", "--wandb_project", required=False)
+    parser.add_argument("-d", "--dataset", choices=["mnist", "fashion_mnist"])
+    parser.add_argument("-e", "--epochs", type=int)
+    parser.add_argument("-b", "--batch_size", type=int)
+    parser.add_argument("-lr", "--learning_rate", type=float)
+    parser.add_argument("-o", "--optimizer", choices=["sgd", "momentum", "nag", "rmsprop"])
+    parser.add_argument("-nhl", "--num_layers", type=int)
+    parser.add_argument("-sz", "--hidden_size", nargs="+", type=int)
+    parser.add_argument("-a", "--activation", choices=["relu", "sigmoid", "tanh"])
+    parser.add_argument("-l", "--loss", choices=["cross_entropy", "mse"])
+    parser.add_argument("-wd", "--weight_decay", type=float)
+    parser.add_argument("-wi", "--weight_init", choices=["random", "xavier"])
+    parser.add_argument("-wp", "--wandb_project")
     parser.add_argument("--model_save_path", default="src/best_model.npy")
     
     return parser.parse_args()
