@@ -75,6 +75,12 @@ class NAG:
             j.b -= self.beta * self.v_b[i]
     
     def update(self, layers):
+            # Initialize velocity if first step
+            if len(self.v_w) == 0:
+                for j in layers:
+                    self.v_w.append(np.zeros_like(j.w))
+                    self.v_b.append(np.zeros_like(j.b))
+                    
             for i, j in enumerate(layers):
                 # Restore parameters
                 j.w += self.beta * self.v_w[i]

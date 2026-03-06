@@ -63,7 +63,7 @@ class NeuralNetwork:
             x_v = self.activations[i].forward(z)
             
             # log activation stats for first hidden layer
-            if i == 0:
+            if wandb.run is not None:
                 wandb.log({"layer1_activation_mean": np.mean(x_v), # logs mean activation 
                            "layer1_activation_fraction": np.mean(x_v == 0)}) # logs fraction of neuron that output =0
         # Last layer 
@@ -100,13 +100,16 @@ class NeuralNetwork:
         # Log gradient normalization of first hidden layer
         if len(self.layers) > 1:
             grad_norm_layer1 = np.linalg.norm(self.layers[0].grad_w)
-            wandb.log({"grad_layer1_norm": grad_norm_layer1})
+
+            if wandb.run is not None:
+               wandb.log({"grad_layer1_norm": grad_norm_layer1})
 
         # log gradient of 5 neuroins in first layer
         if len(self.layers) > 0:
             first_layer_grad = self.layers[0].grad_w
             for nidx in range(min(5, first_layer_grad.shape[0])): # For 1st 5 neuron
-                wandb.log({f"grad_neuron_{nidx}": np.linalg.norm(first_layer_grad[nidx])})
+                if wandb.run is not None:
+                   wandb.log({f"grad_neuron_{nidx}": np.linalg.norm(first_layer_grad[nidx])})
 
         # Create explicit object arrays to avoid numpy trying to broadcast shapes
         # For store gradients

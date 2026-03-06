@@ -4,6 +4,7 @@ Evaluate trained models on test sets
 """
 
 import argparse
+import wandb
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from src.utils.data_loader import load_data
@@ -82,6 +83,7 @@ def main():
 
     TODO: Must return Dictionary - logits, loss, accuracy, f1, precision, recall
     """
+    wandb.init(project="da6401_Assigment_01_weight_bias")
     args = parse_arguments()
     # Load dataset
     _, _, _, _, x_test, y_test = load_data(args.dataset)
