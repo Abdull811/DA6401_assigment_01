@@ -138,15 +138,13 @@ def main(args=None):
         # Training accuracy
         train_logits = model.forward(x_train)
         train_pred = np.argmax(train_logits, axis=1)
-        y_train_lab = np.argmax(y_train, axis=1)
-        train_acc = np.mean(train_pred == y_train_lab)
+        train_acc = np.mean(train_pred == y_train)
 
         # Validation Accuracy
         val_logits = model.forward(x_val)
         val_pred = np.argmax(val_logits, axis=1)
 
-        y_val_lab = np.argmax(y_val, axis=1) if len(y_val.shape) > 1 else y_val
-        val_acc = np.mean(y_val_lab == val_pred)
+        val_acc = np.mean(y_val == val_pred)
         val_accuracies.append(val_acc)
         
         wandb.log({"epoch":epoch, "train_loss":epoch_loss,
@@ -194,13 +192,12 @@ def main(args=None):
     test_logits = model.forward(x_test)
     test_pred = np.argmax(test_logits, axis=1)
 
-    y_test_lab = np.argmax(y_test, axis=1) if len(y_test.shape) > 1 else y_test
-    test_acc = np.mean(test_pred == y_test_lab)
+    test_acc = np.mean(test_pred == y_test)
     print(f"Test Accuracy: {test_acc:.4f}")
     wandb.log({"test_accuracy": test_acc})
 
     # Compute confusion matrix
-    cm = confusion_matrix(y_test_lab, test_pred)
+    cm = confusion_matrix(y_test, test_pred)
     # Plot confusion matrix
     fig, ax = plt.subplots(figsize=(10,8))
     im = ax.imshow(cm, cmap="Blues")
