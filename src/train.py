@@ -52,15 +52,16 @@ def parse_arguments():
     
     return parser.parse_args()
 
-def main():
+def main(args=None):
     """
     Main training function.
     """
-    args = parse_arguments()
+    if args is None:
+       args = parse_arguments()
     
-    wandb.init(project=args.wandb_project or "da6401_Assigment_01_weight_bias",
-               config=vars(args))
+    wandb.init(project="da6401_Assigment_01_weight_bias", config=vars(args))
     config = wandb.config
+
     args.batch_size = config.batch_size
     args.learning_rate = config.learning_rate
     args.optimizer = config.optimizer
@@ -171,7 +172,7 @@ def main():
     plt.ylabel("Loss")
     plt.title("Training Loss Curve")
 
-    wandb.log({"Training Loss Curve ": wandb.Image(plt)})
+    # wandb.log({"Training Loss Curve ": wandb.Image(plt)})
     wandb.log({"Training Loss Curve": wandb.Image(plt.gcf())})
     plt.close()
 
@@ -181,7 +182,7 @@ def main():
     plt.ylabel("Validation Accuracy")
     plt.title("Validation Accuracy Curve")
 
-    wandb.log({"Validation Accuracy Curve": wandb.Image(plt)})
+    # wandb.log({"Validation Accuracy Curve": wandb.Image(plt)})
     wandb.log({"Validation Accuracy Curve": wandb.Image(plt.gcf())})
     plt.close()
 
@@ -231,4 +232,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    args = parse_arguments()
+    main(args)
