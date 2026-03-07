@@ -4,8 +4,8 @@
 This assigments a Multi-layer perceptron (MLP) neural network from acratch using numpy for image classification. Experiments are tracked using Weight & Biases for visualization and hyperparameter tuning.
 
 ## Repository 
-GitHub Repository: [https://github.com/Abdull811/DA6401_assigment_01.git]
-Weights & Biases Report: []
+- GitHub Repository: [https://github.com/Abdull811/DA6401_assigment_01.git]
+- Weights & Biases Report: []
 
 ## Learniing Objective
 - Forward propagation in neural networks
