@@ -46,7 +46,8 @@ class MSELoss:
         loss = np.sum((y_onehot - logits) ** 2) / m
         return loss
 
-    def backward(self):
-        
-        m = self.y_onehot.shape[0]
-        return 2 * (self.logits - self.y_onehot) / m
+    def backward(self, y_true, logits):
+        m = y_true.shape[0]
+        y_onehot = np.zeros_like(logits)
+        y_onehot[np.arange(m), y_true] = 1
+    return 2 * (logits - y_onehot) / m
