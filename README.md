@@ -4,9 +4,11 @@
 This assigments a Multi-layer perceptron (MLP) neural network from acratch using numpy for image classification. Experiments are tracked using Weight & Biases for visualization and hyperparameter tuning.
 
 ## Repository 
-- GitHub Repository: [https://github.com/Abdull811/DA6401_assigment_01.git]
-- Weights & Biases Report: []
+- **GitHub Repository**: [https://github.com/Abdull811/DA6401_assigment_01.git]
+- **Weights & Biases Run Link:** [View Run on W&B](https://wandb.ai/ge26z811-zan/da6401_Assigment_01_weight_bias/table?nw=nwuserge26z811)
+- **Weights & Biases Report**: [https://wandb.ai/ge26z811-zan/da6401_Assigment_01_weight_bias/reports/Weight-and-Biases-Report--VmlldzoxNjEzMTk1MQ]
 
+  
 ## Learniing Objective
 - Forward propagation in neural networks
 - Backpropagation and gradient computation
