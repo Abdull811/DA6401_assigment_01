@@ -91,16 +91,16 @@ def main(args=None):
     
     # Initialize SGD, Momentum, NAG, RMSProp Optimizers
     if args.optimizer == "sgd":
-        optimizer = SGD(args.learning_rate)
+        optimizer = SGD(args.learning_rate, args.weight_decay)
 
     elif args.optimizer == "momentum":
-        optimizer = Momentum(args.learning_rate)
+        optimizer = Momentum(args.learning_rate, args.weight_decay)
 
     elif args.optimizer == "nag":
-        optimizer = NAG(args.learning_rate)
+        optimizer = NAG(args.learning_rate, args.weight_decay)
 
     elif args.optimizer == "rmsprop":
-        optimizer = RMSProp(args.learning_rate)
+        optimizer = RMSProp(args.learning_rate, args.weight_decay)
     
     # Training loop
     best_val_acc = 0
