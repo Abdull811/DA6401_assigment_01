@@ -81,13 +81,16 @@ def main(args=None):
         for i in range(0, x_train_shuffled.shape[0], args.batch_size):
             x_batch = x_train_shuffled[i:i + args.batch_size]
             y_batch = y_train_shuffled[i:i + args.batch_size]
-
+            # Forward pass
             logits = model.forward(x_batch)
+            # Compute loss
             loss = model.loss_fn.forward(y_batch, logits)
             epoch_loss += loss
             num_batches += 1
-
+            
+            # Backward pass
             model.backward(y_batch, logits)
+            # Update weight
             optimizer.update(model.layers)
         
         if num_batches > 0:
