@@ -3,11 +3,14 @@ Inference Script
 Evaluate trained models on test sets
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import argparse
 import wandb
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from src.utils.load_data import load_data
+from utils.data_loader import load_data
 from src.ann.neural_network import NeuralNetwork
 
 def parse_arguments():

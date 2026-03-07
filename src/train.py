@@ -3,13 +3,16 @@ Main Training Script
 Entry point for training neural networks with command-line arguments
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import argparse
 import numpy as np
 import wandb
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix 
-from src.utils.load_data import load_data
-from src.ann.neural_network import NeuralNetwork
+from src.utils.data_loader import load_data
+from ann.neural_network import NeuralNetwork
 from src.ann.optimizers import SGD, Momentum, NAG, RMSProp
 
 def parse_arguments():

@@ -1,3 +1,5 @@
+# Neural layer Implementation
+
 import numpy as np
 
 # Perform liner z = wx + b and store gradient during back propagation

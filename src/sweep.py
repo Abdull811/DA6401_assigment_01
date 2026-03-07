@@ -1,4 +1,7 @@
 import wandb
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.train import main
 
 sweep_config = {'method': 'random', 'metric': {'name': 'val_accuracy', 'goal': 'maximize'},

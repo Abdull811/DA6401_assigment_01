@@ -1,3 +1,6 @@
+# Activation Functions and Derivatives
+# Implementation: Relu, Sigmoid, Tanh, Softmax 
+
 """
 Activation Functions and Their Derivatives
 Implements: ReLU, Sigmoid, Tanh, Softmax

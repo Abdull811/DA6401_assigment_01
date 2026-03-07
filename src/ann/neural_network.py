@@ -1,3 +1,5 @@
+# Neural network implementation
+
 """
 Main Neural Network Model class
 Handles forward and backward propagation
@@ -6,6 +8,9 @@ Handles forward and backward propagation
 import numpy as np
 import wandb
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 from src.ann.neural_layer import NeuralLayer
 from src.ann.activations import ReLu, Sigmoid, Tanh
 from src.ann.objective_functions import CrossEntropyLoss, MSELoss
