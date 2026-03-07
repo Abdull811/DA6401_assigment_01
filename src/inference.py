@@ -48,8 +48,6 @@ def load_model(args):
     model = NeuralNetwork(args)
     
     # Load weights
-    layers_data = np.load(args.model_path, allow_pickle=True)
-
     weights = np.load(args.model_path, allow_pickle=True).item()
     model.set_weights(weights)
 
