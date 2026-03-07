@@ -42,7 +42,7 @@ DA6401_ASSIGMENT_01
 │   │
 │   └── utils                         
 │       ├── __init__.py
-│       └── data_loader.py                # Dataset loading and preprocessing
+│       └── load_data.py                # Dataset loading and preprocessing
 ```
 
 ## Installation
@@ -58,19 +58,19 @@ DA6401_ASSIGMENT_01
 
 - Training model:
 ```
- ! python src/train.py \
-   -d mnist \
-   -e 10 \
-   -b 64 \
-   -lr 0.001\
-   -o rmsprop \
-   -nhl 3 \
-   -sz 128 64 \
-   -a sigmoid \
-   -l cross_entropy \
-   -wd 0.0001 \
-   -wi xavier \
-   -wp da6401_Assignment_o1_weight_and_bias
+ !python -m src.train \
+-d mnist \
+-e 10 \
+-b 64 \
+-lr 0.01 \
+-o rmsprop \
+-nhl 2 \
+-sz 128 64 \
+-a sigmoid \
+-l cross_entropy \
+-wd 0.0001 \
+-wi xavier \
+-wp da6401_Assignment_01_weight_and_bias
 ```
 
 ```
@@ -78,16 +78,16 @@ DA6401_ASSIGMENT_01
 ```
 - Model Performance
  ```
-  - !python -m src.inference \
-       -m src/best_model.npy \
-       -d mnist \
-       -nhl 2 \
-       -sz 128 64 \
-       -a relu \
-       -l cross_entropy \
-       -wi xavier \
-       -wd 0.0005 \
-       -lr 0.01
+ !python -m src.inference \
+-m src/best_model.npy \
+-d mnist \
+-nhl 2 \
+-sz 128 64 \
+-a sigmoid \
+-l cross_entropy \
+-wi xavier \
+-wd 0.0005 \
+-lr 0.01
     ```
 
    
