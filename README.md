@@ -20,27 +20,29 @@ This assigments a Multi-layer perceptron (MLP) neural network from acratch using
 
 ## Project Structure
 
+The project follows a modular structure as shown below:
 ```
 DA6401_ASSIGMENT_01
 │
 ├── README.md
 ├── requirements.txt
+│
 ├── src
-│   ├── train.py
-│   ├── sweep.py
-│   ├── inference.py
+│   ├── train.py                          # Training script for the neural network
+│   ├── sweep.py                          # Hyperparameter sweep experiments (100 runs)
+│   ├── inference.py                      # Model evaluation and performance metrics
 │   │
-│   ├── ann
+│   ├── ann                               # Neural network implementation
 │   │   ├── __init__.py
-│   │   ├── activations.py
-│   │   ├── neural_layer.py
-│   │   ├── neural_network.py
-│   │   ├── objective_functions.py
-│   │   └── optimizers.py
+│   │   ├── activations.py                # Activation functions (ReLU, Sigmoid, Tanh)
+│   │   ├── neural_layer.py               # Implementation of a neural network layer
+│   │   ├── neural_network.py             # Complete MLP architecture
+│   │   ├── objective_functions.py        # Loss functions (MSE, Cross-Entropy)
+│   │   └── optimizers.py                 # Optimizers (SGD, Momentum, NAG, RMSProp)
 │   │
-│   └── utils
+│   └── utils                         
 │       ├── __init__.py
-│       └── data_loader.py
+│       └── data_loader.py                # Dataset loading and preprocessing
 ```
 
 ## Installation
@@ -61,6 +63,20 @@ DA6401_ASSIGMENT_01
    -l cross_entropy \
    -wd 0.0001 \
    -wi xavier \
-   -wp da6401_Assignment_o1_weight_and_bias
+   -wp da6401_Assignment_o1_weight_and_bias '''
+
+''' !python -m src.sweep '''
+
+  - Model Performance
+  - '''!python -m src.inference \
+       -m src/best_model.npy \
+       -d mnist \
+       -nhl 2 \
+       -sz 128 64 \
+       -a relu \
+       -l cross_entropy \
+       -wi xavier \
+       -wd 0.0005 \
+       -lr 0.01  '''
 
    
