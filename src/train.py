@@ -155,7 +155,7 @@ def main(args=None):
         # Best Model
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            np.save(args.model_save_path, model.get_weights)
+            np.save(args.model_save_path, model.get_weights())
     
     # Training loss curve
     plt.figure()
