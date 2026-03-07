@@ -13,8 +13,9 @@ def load_data(name):
        raise ValueError("Dataset must be 'mnist' or 'fashion_mnist'")
 
     # Normalize x_train, x_test dataset
-    x_train = (x_train/255.0).astype(np.float32)
-    x_test = (x_test/255.0).astype(np.float32)
+    x_train = x_train.astype(np.float32) /255.0
+    x_test = x_test.astype(np.float32) /255.0
+    x_val = x_val.astype(np.float32) /255.0
     x_train = x_train.reshape(x_train.shape[0], -1) #Reshape train image from 2D to 1D
     x_test = x_test.reshape(x_test.shape[0], -1) # Reshape test image
 
