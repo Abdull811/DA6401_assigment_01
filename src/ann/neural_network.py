@@ -1,19 +1,20 @@
 """
 Main Neural Network Model class
-Handles forward and backward propagation loops
+Handles forward and backward propagation
 """
+
 import numpy as np
 import wandb
+
 from src.ann.neural_layer import NeuralLayer
 from src.ann.activations import ReLu, Sigmoid, Tanh
 from src.ann.objective_functions import CrossEntropyLoss, MSELoss
 
+
 class NeuralNetwork:
-    """
-    Main model class that orchestrates the neural network training and inference.
-    """
 
     def __init__(self, cli_args):
+        np.random.seed(42)
         self.layers = []
         self.activations = []
 
@@ -22,145 +23,99 @@ class NeuralNetwork:
         activation_name = cli_args.activation
         weight_init = cli_args.weight_init
         loss_name = cli_args.loss
-        self.loss_name = cli_args.loss
+
         self.weight_decay = cli_args.weight_decay
-        self.learning_rate  = cli_args.learning_rate
 
-        layer_dim = [input_dim] + hidden_sizes + [10]
-        # Layers
-        for i in range(len(layer_dim)-1):
-            self.layers.append(NeuralLayer(layer_dim[i], layer_dim[i + 1], weight_init))
+        layer_dims = [input_dim] + hidden_sizes + [10]
 
-            # Activation function for hidden layers
-            if i < len(layer_dim) - 2:
-               if activation_name == "relu" :
-                   self.activations.append(ReLu())
-               elif activation_name == "sigmoid":
-                   self.activations.append(Sigmoid())
-               elif activation_name == "tanh" :
-                   self.activations.append(Tanh())
+        # Create layers
+        for i in range(len(layer_dims) - 1):
 
-        # Objective function
+            self.layers.append(
+                NeuralLayer(layer_dims[i], layer_dims[i + 1], weight_init))
+
+            if i < len(layer_dims) - 2:
+
+                if activation_name == "relu":
+                    self.activations.append(ReLu())
+
+                elif activation_name == "sigmoid":
+                    self.activations.append(Sigmoid())
+
+                elif activation_name == "tanh":
+                    self.activations.append(Tanh())
+
+        # Loss
         if loss_name == "cross_entropy":
-           self.loss_fn = CrossEntropyLoss()
+            self.loss_fn = CrossEntropyLoss()
         else:
             self.loss_fn = MSELoss()
 
-        self.weight_decay = cli_args.weight_decay
-        self.learning_rate = cli_args.learning_rate                           
-
+    # Forward pass
     def forward(self, X):
-        """
-        Forward propagation through all layers.
-        Returns logits (no softmax applied)
-        X is shape (b, D_in) and output is shape (b, D_out).
-        b is batch size, D_in is input dimension, D_out is output dimension.
-        """
-        x_v = X
-        # Hidden layers
-        for i in range(len(self.activations)):
-            z = self.layers[i].forward(x_v)
-            x_v = self.activations[i].forward(z)
-            
-            # log activation stats for first hidden layer
-            if wandb.run is not None:
-                wandb.log({"layer1_activation_mean": np.mean(x_v), # logs mean activation 
-                           "layer1_activation_fraction": np.mean(x_v == 0)}) # logs fraction of neuron that output =0
-        # Last layer 
-        logits = self.layers[-1].forward(x_v)
-        return logits   
+        out = X
 
-    def backward(self, y_true, y_pred):
-        """
-        Backward propagation to compute gradients.
-        Returns two numpy arrays: grad_Ws, grad_bs.
-        - `grad_Ws[0]` is gradient for the last (output) layer weights,
-          `grad_bs[0]` is gradient for the last layer biases, and so on.
-        """
-        self.loss_fn.forward(y_true, y_pred)
+        for i in range(len(self.activations)):
+
+            z = self.layers[i].forward(out)
+            out = self.activations[i].forward(z)
+
+            if wandb.run is not None:
+                wandb.log({"layer1_activation_mean": np.mean(out),
+                    "layer1_activation_fraction": np.mean(out == 0)})
+
+        logits = self.layers[-1].forward(out)
+
+        return logits
+
+    # Backpropagation
+
+    def backward(self, y_true, logits):
+
+        self.loss_fn.forward(y_true, logits)
         dz = self.loss_fn.backward()
 
-        grad_W_list = []
-        grad_b_list = []
-
-        # Backprop through layers in reverse
-        # Output layer backpropagation
+        # Output layer
         da = self.layers[-1].backward(dz, self.weight_decay)
-        grad_W_list.append(self.layers[-1].grad_w)
-        grad_b_list.append(self.layers[-1].grad_b)
-        
-        # Hidden layer backpropagation
+
+        # Hidden layers
         for i in reversed(range(len(self.activations))):
             dz = self.activations[i].backward(da)
             da = self.layers[i].backward(dz, self.weight_decay)
 
-            grad_W_list.append(self.layers[i].grad_w)
-            grad_b_list.append(self.layers[i].grad_b)
-            
-        # Log gradient normalization of first hidden layer
-        if len(self.layers) > 1:
-            grad_norm_layer1 = np.linalg.norm(self.layers[0].grad_w)
+        # Collect gradients
+        grad_W = []
+        grad_b = []
 
-            if wandb.run is not None:
-               wandb.log({"grad_layer1_norm": grad_norm_layer1})
+        for layer in self.layers:
+            grad_W.append(layer.grad_w)
+            grad_b.append(layer.grad_b)
 
-        # log gradient of 5 neuroins in first layer
-        if len(self.layers) > 0:
-            first_layer_grad = self.layers[0].grad_w
-            for nidx in range(min(5, first_layer_grad.shape[0])): # For 1st 5 neuron
-                if wandb.run is not None:
-                   wandb.log({f"grad_neuron_{nidx}": np.linalg.norm(first_layer_grad[nidx])})
+        self.grad_W = np.array(grad_W, dtype=object)
+        self.grad_b = np.array(grad_b, dtype=object)
 
-        # Create explicit object arrays to avoid numpy trying to broadcast shapes
-        # For store gradients
-        self.grad_W = np.empty(len(grad_W_list), dtype=object)
-        self.grad_b = np.empty(len(grad_b_list), dtype=object)
-        for i, (gw, gb) in enumerate(zip(grad_W_list, grad_b_list)):
-            self.grad_W[i] = gw
-            self.grad_b[i] = gb
-
-        #print("Shape of grad_Ws:", self.grad_W.shape, self.grad_W[1].shape)
-        #print("Shape of grad_bs:", self.grad_b.shape, self.grad_b[1].shape)
         return self.grad_W, self.grad_b
-    
-    # weight update
-    #def update_weights(self):
-     #   for j in self.layers:
-      #      j.w -= self.learning_rate * j.grad_w
-       #     j.b -= self.learning_rate * j.grad_b
-    
-    # Training
-    def train(self, X_train, y_train, epochs=1, batch_size=32):
-        n = X_train.shape[0]
-        for epoch in range(epochs):
-            for i in range(0, n, batch_size):
-                X_batch = X_train[i:i + batch_size]
-                y_batch = y_train[i:i + batch_size]
-                logits = self.forward(X_batch)
-                self.backward(y_batch, logits)
-                self.update_weights()
-    # evaluation
+
+    # Evaluation
+
     def evaluate(self, X, y):
         logits = self.forward(X)
-        predictions = np.argmax(logits, axis=1)
-        accuracy = np.mean(predictions == y)
-        
+        preds = np.argmax(logits, axis=1)
+        accuracy = np.mean(preds == y)
+
         return accuracy
-    
-    # save weights 
+
+    # Save weights
     def get_weights(self):
         weights = {}
         for i, layer in enumerate(self.layers):
             weights[f"w{i}"] = layer.w.copy()
             weights[f"b{i}"] = layer.b.copy()
+
         return weights
-    
+
     # Load weights
     def set_weights(self, weight_dict):
         for i, layer in enumerate(self.layers):
-            w_key = f"w{i}"
-            b_key = f"b{i}"
-            if w_key in weight_dict:
-                layer.w = weight_dict[w_key].copy()
-            if b_key in weight_dict:
-                layer.b = weight_dict[b_key].copy()
+            layer.w = weight_dict[f"w{i}"].copy()
+            layer.b = weight_dict[f"b{i}"].copy()
