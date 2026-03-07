@@ -43,14 +43,18 @@ def parse_arguments():
     parser.add_argument("-wi","--weight_init",required=True,choices=["random","xavier"])
     parser.add_argument("-wp","--wandb_project")
     parser.add_argument("--model_save_path",default="src/best_model.npy")
-
+    
     return parser.parse_args()
+       
 def main(args=None):
     """
     Main training function.
     """
     if args is None:
        args = parse_arguments()
+
+    if args.num_layers != len(args.hidden_size):
+        raise ValueError("num_layers must equal number of hidden_size values")
     
     wandb.init(project=args.wandb_project or "da6401_Assigment_01_weight_bias", config=vars(args) if args else None)
     config = wandb.config
