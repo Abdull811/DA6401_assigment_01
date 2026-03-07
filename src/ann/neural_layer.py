@@ -8,7 +8,7 @@ class NeuralLayer:
           if weight_init == "random":
              self.w = np.random.randn(input_dim, output_dim) * 0.01
           elif weight_init ==  "xavier":
-               std = np.sqrt(2.0 / (input_dim + output_dim)) # std for xavier
+               std = np.sqrt(1.0 / input_dim ) # std for xavier
                self.w = np.random.randn(input_dim, output_dim) * std
           else: 
                raise ValueError("weight_init must be 'random' or 'xavier'")
