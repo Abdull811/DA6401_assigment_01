@@ -32,4 +32,9 @@ class Tanh:
       def backward(self, da):
           dz = da * (1 - self.a ** 2) 
           return dz
-                
+
+class Softmax(x):
+     def softmax(x):
+         x = x - np.max(x, axis=1, keepdims=True)
+         exp_x = np.exp(x)
+    return exp_x / np.sum(exp_x, axis=1, keepdims=True)
