@@ -29,6 +29,7 @@ def parse_arguments():
     - wandb_project: W&B project name
     - model_save_path: Path to save trained model (do not give absolute path, rather provide relative path)
     """
+    parser = argparse.ArgumentParser()
     parser.add_argument("-d","--dataset",required=True,choices=["mnist","fashion_mnist"])
     parser.add_argument("-e","--epochs",required=True,type=int)
     parser.add_argument("-b","--batch_size",required=True,type=int)
