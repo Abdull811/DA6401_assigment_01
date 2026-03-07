@@ -1,25 +1,25 @@
 import numpy as np
-from keras.datasets import mnist, fashion_mnist #load the datasets
-from sklearn.model_selection import train_test_split # Split the dataset into train and test
+from keras.datasets import mnist, fashion_mnist
+from sklearn.model_selection import train_test_split
 
-# Load MNIST or Fashion MNIST dataset
-# And return training and testing images labels: x_train, y_train, x_test, y_test
 def load_data(name):
     if name == 'mnist':
-      (x_train, y_train),(x_test, y_test) = mnist.load_data()
+        (x_train, y_train), (x_test, y_test) = mnist.load_data()
     elif name == 'fashion_mnist':
-      (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
+        (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
     else:
-       raise ValueError("Dataset must be 'mnist' or 'fashion_mnist'")
+        raise ValueError("Dataset must be 'mnist' or 'fashion_mnist'")
 
-    # Normalize x_train, x_test dataset
-    x_train = x_train.astype(np.float32) /255.0
-    x_test = x_test.astype(np.float32) /255.0
-    x_val = x_val.astype(np.float32) /255.0
-    x_train = x_train.reshape(x_train.shape[0], -1) #Reshape train image from 2D to 1D
-    x_test = x_test.reshape(x_test.shape[0], -1) # Reshape test image
+    # Normalize train and test
+    x_train = x_train.astype(np.float32) / 255.0
+    x_test = x_test.astype(np.float32) / 255.0
 
-    # Train and test split
-    x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train,
-                                            test_size=0.2, random_state = 42)
-    return x_train, y_train, x_valid, y_valid, x_test, y_test
+    # Flatten images
+    x_train = x_train.reshape(x_train.shape[0], -1)
+    x_test = x_test.reshape(x_test.shape[0], -1)
+
+    # Split train into train/validation
+    x_train, x_val, y_train, y_val = train_test_split(
+        x_train, y_train, test_size=0.2, random_state=42)
+
+    return x_train, y_train, x_val, y_val, x_test, y_test
