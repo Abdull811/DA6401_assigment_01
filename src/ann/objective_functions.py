@@ -22,8 +22,9 @@ class CrossEntropyLoss:
         self.probs = probs
         self.y_true = y_true
 
-        correct_probs = probs[np.arange(m), y_true]
-        loss = -np.mean(np.log(correct_probs + 1e-9))
+        eps = 1e-9
+        probs = np.clip(probs, eps, 1 - eps])
+        loss = -np.mean(np.log(probs[np.arrange(m), y_true]))
         
         return loss
 
