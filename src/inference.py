@@ -11,9 +11,9 @@ from src.utils.load_data import load_data
 from src.ann.neural_network import NeuralNetwork
 
 def parse_arguments():
+    
     parser = argparse.ArgumentParser(description='Run inference on test set')
-
-    # Default values added for autograder compatibility
+    
     parser.add_argument("-m", "--model_path", default="src/best_model.npy",
                         help="Relative path to saved model (.npy)")
     parser.add_argument("-d", "--dataset", default="mnist",
@@ -28,7 +28,6 @@ def parse_arguments():
                         choices=["random", "xavier"])
     parser.add_argument("-wd", "--weight_decay", type=float, default=0.0001)
     parser.add_argument("-lr", "--learning_rate", type=float, default=0.01)
-    parser.add_argument("-m", "--model_path", default="src/best_model.npy")
 
     return parser.parse_args()
 
