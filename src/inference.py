@@ -28,6 +28,7 @@ def parse_arguments():
                         choices=["random", "xavier"])
     parser.add_argument("-wd", "--weight_decay", type=float, default=0.0001)
     parser.add_argument("-lr", "--learning_rate", type=float, default=0.01)
+    parser.add_argument("-m", "--model_path", default="src/best_model.npy")
 
     return parser.parse_args()
 
