@@ -103,17 +103,17 @@ def main(args=None):
     val_accuracies = []
     for epoch in range(args.epochs):
         # Random training data
-        indices = np.random.permutation(x_train.shape[0])
-        x_train = x_train[indices]
-        y_train = y_train[indices]
+        indices = np.random.permutation(len(x_train))
+        x_train_shuffled = x_train[indices]
+        y_train_shuffled = y_train[indices]
         
         epoch_loss = 0
         num_batches = 0 
 
-        for i in range(0, x_train.shape[0], args.batch_size):
+        for i in range(0, x_train_shuffled.shape[0], args.batch_size):
 
-            x_batch = x_train[i:i + args.batch_size]
-            y_batch = y_train[i:i + args.batch_size]
+            x_batch = x_train_shuffled[i:i + args.batch_size]
+            y_batch = y_train_shuffled[i:i + args.batch_size]
 
             # Forward pass
             logits = model.forward(x_batch)
@@ -154,8 +154,7 @@ def main(args=None):
         # Best Model
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            weights = model.get_weights()
-            np.save(args.model_save_path, weights)
+            np.save(args.model_save_path, model.get_weights)
     
     # Training loss curve
     plt.figure()
