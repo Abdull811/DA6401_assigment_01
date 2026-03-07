@@ -7,33 +7,28 @@ import numpy as np
 
 # Cross entropy loss that contain linear combination 
 class CrossEntropyLoss:
-
     def forward(self, y_true, logits):
-        """
-        y_true: shape (batch_size,) > integer labels
-        logits: shape (batch_size, num_classes)
-        """
+        # Apply softmax to logits
+        exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))
+        probs = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
+
         m = y_true.shape[0]
-        # Softmax 
-        logits = logits - np.max(logits, axis=1, keepdims=True)
-        exp_scores = np.exp(logits)
-        probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+        if len(y_true.shape) > 1:
+            y_true = np.argmax(y_true, axis=1)
 
+        # Compute loss
+        loss = -np.mean(np.log(probs[np.arange(m), y_true] + 1e-9))
         self.probs = probs
-        self.y_true = y_true
-
-        eps = 1e-9
-        probs = np.clip(probs, eps, 1 - eps])
-        loss = -np.mean(np.log(probs[np.arrange(m), y_true]))
-        
         return loss
 
-    def backward(self):
-        m = self.y_true.shape[0]
+    def backward(self, y_true, logits):
+        m = y_true.shape[0]
+        if len(y_true.shape) > 1:
+            y_true = np.argmax(y_true, axis=1)
 
         grad = self.probs.copy()
-        grad[np.arange(m), self.y_true] -= 1
-        grad = grad/m
+        grad[np.arange(m), y_true] -= 1
+        grad /= m
         return grad
 
 class MSELoss:
