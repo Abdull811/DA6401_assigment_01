@@ -47,11 +47,16 @@ DA6401_ASSIGMENT_01
 
 ## Installation
 - Clone repository: 
-''' git clone https://github.com/Abdull811/DA6401_assigment_01.git   '''
+'''
+ git clone https://github.com/Abdull811/DA6401_assigment_01.git
+'''
 - Install dependicies:
-''' !pip install -r requirements.txt '''
+'''
+!pip install -r requirements.txt
+'''
 - Training model:
-''' ! python src/train.py \
+'''
+ ! python src/train.py \
    -d mnist \
    -e 10 \
    -b 64 \
@@ -63,12 +68,14 @@ DA6401_ASSIGMENT_01
    -l cross_entropy \
    -wd 0.0001 \
    -wi xavier \
-   -wp da6401_Assignment_o1_weight_and_bias '''
-
-''' !python -m src.sweep '''
-
+   -wp da6401_Assignment_o1_weight_and_bias
+  '''
+''' 
+!python -m src.sweep
+'''
   - Model Performance
-  - '''!python -m src.inference \
+  '''
+  - !python -m src.inference \
        -m src/best_model.npy \
        -d mnist \
        -nhl 2 \
@@ -77,6 +84,7 @@ DA6401_ASSIGMENT_01
        -l cross_entropy \
        -wi xavier \
        -wd 0.0005 \
-       -lr 0.01  '''
+       -lr 0.01
+    '''
 
    
