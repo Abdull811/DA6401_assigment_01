@@ -87,7 +87,7 @@ class NeuralNetwork:
         grad_W = []
         grad_b = []
 
-        for layer in self.layers:
+        for layer in reversed(self.layers):
             grad_W.append(layer.grad_w)
             grad_b.append(layer.grad_b)
 
