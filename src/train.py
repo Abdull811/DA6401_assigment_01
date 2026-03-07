@@ -8,7 +8,7 @@ import numpy as np
 import wandb
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix 
-from src.utils.data_loader import load_data
+from src.utils.load_data import load_data
 from src.ann.neural_network import NeuralNetwork
 from src.ann.optimizers import SGD, Momentum, NAG, RMSProp
 
