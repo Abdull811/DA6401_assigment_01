@@ -39,7 +39,7 @@ def main(args=None):
     if args.num_layers != len(args.hidden_size):
         raise ValueError("num_layers must equal number of hidden_size values")
     
-    wandb.init(project=args.wandb_project, config=vars(args))
+    wandb.init(project=args.wandb_project or "da6401_Assigment_01_weight_bias", config=vars(args), mode="disabled")
     config = wandb.config
 
     # Load Dataset
@@ -117,6 +117,8 @@ def main(args=None):
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             np.save("src/best_model.npy", model.get_weights())
+            wandb.log({"best_val_accuracy": best_val_acc})
+
     
     # Training loss curve (keep plots)
     plt.figure()
@@ -137,6 +139,8 @@ def main(args=None):
 
     print("Training complete!")
     print(f"Best validation accuracy: {best_val_acc:.4f}")
+    wandb.log({"final_val_accuracy": best_val_acc,
+    "final_train_loss": train_losses[-1] if train_losses else None})
 
     best_weights = np.load(args.model_save_path, allow_pickle=True).item()
     model.set_weights(best_weights)

@@ -10,7 +10,7 @@ import argparse
 import wandb
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from utils.data_loader import load_data
+from src.utils.data_loader import load_data
 from src.ann.neural_network import NeuralNetwork
 
 def parse_arguments():
@@ -37,6 +37,7 @@ def load_model(args):
     model = NeuralNetwork(args)
     weights = np.load(args.model_path, allow_pickle=True).item()
     model.set_weights(weights)
+
     return model   
 
 def evaluate_model(model, X_test, y_test): 
