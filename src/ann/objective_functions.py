@@ -5,7 +5,6 @@ Implements: Cross-Entropy, Mean Squared Error (MSE)
 
 import numpy as np
 
-# Cross entropy loss that contain linear combination 
 class CrossEntropyLoss:
     def forward(self, y_true, logits):
         # Apply softmax to logits
@@ -31,12 +30,10 @@ class CrossEntropyLoss:
         grad /= m
         return grad
 
+
 class MSELoss:
-    
     def forward(self, y_true, logits):
         m = y_true.shape[0]
-        
-        # One-hot encode labels
         y_onehot = np.zeros_like(logits)
         y_onehot[np.arange(m), y_true] = 1
 
@@ -50,4 +47,4 @@ class MSELoss:
         m = y_true.shape[0]
         y_onehot = np.zeros_like(logits)
         y_onehot[np.arange(m), y_true] = 1
-    return 2 * (logits - y_onehot) / m
+        return 2 * (logits - y_onehot) / m
