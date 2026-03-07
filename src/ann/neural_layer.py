@@ -6,7 +6,7 @@ class NeuralLayer:
       def __init__(self, input_dim, output_dim, weight_init):
           
           if weight_init == "random":
-             self.w = np.random.randn(input_dim, output_dim) * 0.01
+             self.w = np.random.randn(input_dim, output_dim) 
           elif weight_init == "xavier":
                std = np.sqrt(2.0 / (input_dim + output_dim))
                self.w = np.random.randn(input_dim, output_dim) * std
