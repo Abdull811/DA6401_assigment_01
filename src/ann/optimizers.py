@@ -6,24 +6,22 @@ import numpy as np
 
 # Stochastic Gradient Descent (SGD)
 class SGD:
-    def __init__(self, lr):
-
+    def __init__(self, lr, weight_decay=0.0):
         self.lr = lr
-
+        self.weight_decay = weight_decay
     def update(self, layers):
-
         for i in layers:
-            # Update parameters
-            i.w -= self.lr * i.grad_w
+            i.w -= self.lr * (i.grad_w + self.weight_decay * i.w)
             i.b -= self.lr * i.grad_b
 
 # Momentum
 # v = beta * v + grad
 # w = w - lr * v
 class Momentum:
-    def __init__(self, lr, beta=0.9):
+    def __init__(self, lr, beta=0.9, weight_decay=0.0):
         self.lr = lr
         self.beta = beta
+        self.weight_decay = weight_decay
 
         self.v_w = []
         self.v_b = []
@@ -39,7 +37,7 @@ class Momentum:
         for i, j in enumerate(layers):
 
             # Velocity update
-            self.v_w[i] = self.beta * self.v_w[i] + j.grad_w
+            self.v_w[i] = self.beta * self.v_w[i] + (j.grad_w + self.weight_decay * j.w)
             self.v_b[i] = self.beta * self.v_b[i] + j.grad_b
 
             # Parameter update
@@ -52,10 +50,11 @@ class Momentum:
 # w = w - lr * v
          
 class NAG:
-    def __init__(self, lr, beta=0.9):
+    def __init__(self, lr, beta=0.9, weight_decay=0.0):
 
         self.lr = lr
         self.beta = beta
+        self.weight_decay = weight_decay
 
         self.v_w = []
         self.v_b = []
@@ -87,7 +86,7 @@ class NAG:
                 j.b += self.beta * self.v_b[i] 
                 # update velocity
 
-                self.v_w[i] = self.beta * self.v_w[i] + j.grad_w
+                self.v_w[i] = self.beta * self.v_w[i] + (j.grad_w + self.weight_decay * j.w)
                 self.v_b[i] = self.beta * self.v_b[i] + j.grad_b
 
                 # Final Nesterov update 
@@ -99,10 +98,11 @@ class NAG:
 # w = w - lr * grad / (sqrt(s) + eps)
 
 class RMSProp:
-    def __init__(self, lr, beta=0.9, eps=1e-8):
+    def __init__(self, lr, beta=0.9, eps=1e-8, weight_decay=0.0):
         self.lr = lr
         self.beta = beta
         self.eps = eps
+        self.weight_decay = weight_decay
 
         self.s_w = []
         self.s_b = []
@@ -125,5 +125,5 @@ class RMSProp:
                 + (1 - self.beta) * (j.grad_b ** 2))
 
             # Parameter update
-            j.w -= self.lr * j.grad_w / (np.sqrt(self.s_w[i]) + self.eps)
+            j.w -= self.lr * (j.grad_w + self.weight_decay * j.w) / (np.sqrt(self.s_w[i]) + self.eps)
             j.b -= self.lr * j.grad_b / (np.sqrt(self.s_b[i]) + self.eps)
