@@ -17,25 +17,29 @@ Weights & Biases Report: []
 - Experiment tracking and visualization using Weights & Biases
 
 ## Project Structure
-DS6401_ASSIGMENT_01
-├── Readme.md
+
+```
+DA6401_ASSIGMENT_01
+│
+├── README.md
 ├── requirements.txt
-├── src/
-|
-├── train.py
-├── sweep.py
-├── inference.py
-|
-├── ann/
-|   ├── __init__.py 
-|   ├── activations.py 
-|   ├── neural_layer.py 
-|   ├── neural_network.py
-|   ├── objective_functions.py
-|   ├── optimizers.py
-└── utils/
-|   ├── __init__.py
-    ├──  data_loader.py
+├── src
+│   ├── train.py
+│   ├── sweep.py
+│   ├── inference.py
+│   │
+│   ├── ann
+│   │   ├── __init__.py
+│   │   ├── activations.py
+│   │   ├── neural_layer.py
+│   │   ├── neural_network.py
+│   │   ├── objective_functions.py
+│   │   └── optimizers.py
+│   │
+│   └── utils
+│       ├── __init__.py
+│       └── data_loader.py
+```
 
 ## Installation
 - Clone repository: 
