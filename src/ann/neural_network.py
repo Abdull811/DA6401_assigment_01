@@ -29,16 +29,17 @@ class NeuralNetwork:
 
         layer_dims = [input_dim] + hidden_sizes + [10]
 
+        # Create layers
         for i in range(len(layer_dims) - 1):
 
-            layer = NeuralLayer(layer_dims[i], layer_dims[i+1], weight_init)
-
+            layer = NeuralLayer(layer_dims[i], layer_dims[i + 1], weight_init)
             self.layers.append(layer)
 
-            # expose weights for autograder
+            # Expose weights for autograder
             setattr(self, f"w{i}", layer.w)
             setattr(self, f"b{i}", layer.b)
 
+            # Add activation except last layer
             if i < len(layer_dims) - 2:
 
                 if activation_name == "relu":
@@ -53,6 +54,7 @@ class NeuralNetwork:
                 else:
                     raise ValueError("Unknown activation")
 
+        # Loss function
         if loss_name == "cross_entropy":
             self.loss_fn = CrossEntropyLoss()
 
@@ -62,13 +64,12 @@ class NeuralNetwork:
         else:
             raise ValueError("Unknown loss")
 
-    # Forward pass
+    # Forward Pass
     def forward(self, X):
 
         out = X
 
         for i in range(len(self.activations)):
-
             z = self.layers[i].forward(out)
             out = self.activations[i].forward(z)
 
@@ -76,20 +77,23 @@ class NeuralNetwork:
 
         return logits
 
-    # Backward pass
+    # Backward Pass
     def backward(self, y_true, logits):
 
+        # compute loss
         self.loss_fn.forward(y_true, logits)
 
         dz = self.loss_fn.backward(y_true, logits)
 
+        # output layer
         da = self.layers[-1].backward(dz, self.weight_decay)
 
+        # hidden layers
         for i in reversed(range(len(self.activations))):
-
             dz = self.activations[i].backward(da)
             da = self.layers[i].backward(dz, self.weight_decay)
 
+        # collect gradients
         self.grad_W = [layer.grad_w for layer in self.layers]
         self.grad_b = [layer.grad_b for layer in self.layers]
 
@@ -99,7 +103,6 @@ class NeuralNetwork:
     def evaluate(self, X, y):
 
         logits = self.forward(X)
-
         preds = np.argmax(logits, axis=1)
 
         accuracy = np.mean(preds == y)
@@ -118,16 +121,19 @@ class NeuralNetwork:
 
         return weights
 
-    # Load weights
+    # Load weights 
     def set_weights(self, weight_dict):
 
         for i, layer in enumerate(self.layers):
 
-            if f"w{i}" not in weight_dict:
-                raise KeyError(f"Missing weight w{i}")
+            w_key = f"w{i}"
+            b_key = f"b{i}"
 
-            layer.w = weight_dict[f"w{i}"].copy()
-            layer.b = weight_dict[f"b{i}"].copy()
+            if w_key in weight_dict:
+                layer.w = weight_dict[w_key].copy()
 
-            setattr(self, f"w{i}", layer.w)
-            setattr(self, f"b{i}", layer.b)
+            if b_key in weight_dict:
+                layer.b = weight_dict[b_key].copy()
+
+            setattr(self, w_key, layer.w)
+            setattr(self, b_key, layer.b)

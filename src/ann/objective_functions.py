@@ -30,7 +30,6 @@ class CrossEntropyLoss:
         grad /= m
         return grad
 
-
 class MSELoss:
     def forward(self, y_true, logits):
         m = y_true.shape[0]
