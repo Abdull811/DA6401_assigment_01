@@ -102,7 +102,12 @@ def main(args=None):
 
         train_logits = model.forward(x_train)
         train_pred = np.argmax(train_logits, axis=1)
-        train_acc = np.mean(train_pred == y_train)
+        if len(y_train.shape) > 1:
+            y_train_labels = np.argmax(y_train, axis=1)
+        else:
+            y_train_labels = y_train
+
+        train_acc = np.mean(train_pred == y_train_labels)
 
         val_logits = model.forward(x_val)
         val_pred = np.argmax(val_logits, axis=1)

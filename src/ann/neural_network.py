@@ -1,5 +1,4 @@
 import numpy as np
-import wandb
 import sys
 import os
 
@@ -29,17 +28,15 @@ class NeuralNetwork:
 
         layer_dims = [input_dim] + hidden_sizes + [10]
 
-        # Create layers
+        # build layers
         for i in range(len(layer_dims) - 1):
 
             layer = NeuralLayer(layer_dims[i], layer_dims[i + 1], weight_init)
             self.layers.append(layer)
 
-            # Expose weights for autograder
             setattr(self, f"w{i}", layer.w)
             setattr(self, f"b{i}", layer.b)
 
-            # Add activation except last layer
             if i < len(layer_dims) - 2:
 
                 if activation_name == "relu":
@@ -54,7 +51,7 @@ class NeuralNetwork:
                 else:
                     raise ValueError("Unknown activation")
 
-        # Loss function
+        # loss
         if loss_name == "cross_entropy":
             self.loss_fn = CrossEntropyLoss()
 
@@ -64,12 +61,11 @@ class NeuralNetwork:
         else:
             raise ValueError("Unknown loss")
 
-    # Forward Pass
     def forward(self, X):
 
         out = X
 
-        for i in range(len(self.activations)):
+        for i in range(len(self.layers) - 1):
             z = self.layers[i].forward(out)
             out = self.activations[i].forward(z)
 
@@ -77,29 +73,21 @@ class NeuralNetwork:
 
         return logits
 
-    # Backward Pass
     def backward(self, y_true, logits):
-
-        # compute loss
-        self.loss_fn.forward(y_true, logits)
 
         dz = self.loss_fn.backward(y_true, logits)
 
-        # output layer
         da = self.layers[-1].backward(dz, self.weight_decay)
 
-        # hidden layers
         for i in reversed(range(len(self.activations))):
             dz = self.activations[i].backward(da)
             da = self.layers[i].backward(dz, self.weight_decay)
 
-        # collect gradients
         self.grad_W = [layer.grad_w for layer in self.layers]
         self.grad_b = [layer.grad_b for layer in self.layers]
 
         return self.grad_W, self.grad_b
 
-    # Evaluation
     def evaluate(self, X, y):
 
         logits = self.forward(X)
@@ -109,19 +97,16 @@ class NeuralNetwork:
 
         return accuracy
 
-    # Save weights
     def get_weights(self):
 
         weights = {}
 
         for i, layer in enumerate(self.layers):
-
             weights[f"w{i}"] = layer.w.copy()
             weights[f"b{i}"] = layer.b.copy()
 
         return weights
 
-    # Load weights 
     def set_weights(self, weight_dict):
 
         for i, layer in enumerate(self.layers):
@@ -130,10 +115,9 @@ class NeuralNetwork:
             b_key = f"b{i}"
 
             if w_key in weight_dict:
-                layer.w = weight_dict[w_key].copy()
+                layer.w = weight_dict[w_key]
+                setattr(self, w_key, layer.w)
 
             if b_key in weight_dict:
-                layer.b = weight_dict[b_key].copy()
-
-            setattr(self, w_key, layer.w)
-            setattr(self, b_key, layer.b)
+                layer.b = weight_dict[b_key]
+                setattr(self, b_key, layer.b)

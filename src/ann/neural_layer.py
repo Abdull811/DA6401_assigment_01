@@ -8,7 +8,7 @@ class NeuralLayer:
             self.w = np.random.randn(input_dim, output_dim) * 0.01
 
         elif weight_init == "xavier":
-            std = np.sqrt(2.0 / input_dim)
+            std = np.sqrt(2.0 / (input_dim + output_dim))
             self.w = np.random.randn(input_dim, output_dim) * std
 
         else:
@@ -16,6 +16,7 @@ class NeuralLayer:
 
         self.b = np.zeros((1, output_dim))
 
+        # gradients
         self.grad_w = np.zeros_like(self.w)
         self.grad_b = np.zeros_like(self.b)
 
@@ -25,8 +26,13 @@ class NeuralLayer:
 
     def backward(self, dz, weight_decay):
 
+        # gradient of weights
         self.grad_w = self.x.T @ dz + weight_decay * self.w
+
+        # gradient of bias
         self.grad_b = np.sum(dz, axis=0, keepdims=True)
 
+        # gradient wrt input
         dx = dz @ self.w.T
+
         return dx
