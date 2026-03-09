@@ -2,18 +2,16 @@ import numpy as np
 import sys
 import os
 
+np.random.seed(42)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 from src.ann.neural_layer import NeuralLayer
 from src.ann.activations import ReLu, Sigmoid, Tanh
 from src.ann.objective_functions import CrossEntropyLoss, MSELoss
 
-
 class NeuralNetwork:
 
     def __init__(self, cli_args):
-
-        np.random.seed(42)
 
         self.layers = []
         self.activations = []
@@ -74,11 +72,14 @@ class NeuralNetwork:
         return logits
 
     def backward(self, y_true, logits):
-        
+
         dz = self.loss_fn.backward(y_true, logits)
 
-        for layer in reversed(self.layers):
-            dz = layer.backward(dz, weight_decay=0)
+        dz = self.layers[-1].backward(dz, self.weight_decay)
+
+        for i in reversed(range(len(self.layers) - 1)):
+            dz = self.activations[i].backward(dz)
+            dz = self.layers[i].backward(dz, self.weight_decay)
 
         self.grad_W = []
         self.grad_b = []

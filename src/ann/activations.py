@@ -1,44 +1,30 @@
 import numpy as np
-
-# ReLU
+# ReLu
 class ReLu:
-    def forward(self, z):
-        self.z = z
-        return np.maximum(0, z)
 
-    def backward(self, da):
-        dz = da * (self.z > 0)
-        return dz
+    def forward(self, x):
+        self.x = x
+        return np.maximum(0, x)
 
+    def backward(self, dz):
+        return dz * (self.x > 0)
 
 # Sigmoid
 class Sigmoid:
-    def forward(self, z):
-        z = np.clip(z, -500, 500)
-        self.a = 1 / (1 + np.exp(-z))
-        return self.a
 
-    def backward(self, da):
-        return da * self.a * (1 - self.a)
+    def forward(self, x):
+        self.out = 1 / (1 + np.exp(-x))
+        return self.out
 
+    def backward(self, dz):
+        return dz * self.out * (1 - self.out)
 
 # Tanh
 class Tanh:
-    def forward(self, z):
-        self.a = np.tanh(z)
-        return self.a
 
-    def backward(self, da):
-        return da * (1 - self.a**2)
-
-
-# Softmax
-class Softmax:
     def forward(self, x):
-        x = x - np.max(x, axis=1, keepdims=True)
-        exp_x = np.exp(x)
-        self.a = exp_x / np.sum(exp_x, axis=1, keepdims=True)
-        return self.a
+        self.out = np.tanh(x)
+        return self.out
 
-    def backward(self, da):
-        return da
+    def backward(self, dz):
+        return dz * (1 - self.out ** 2)
