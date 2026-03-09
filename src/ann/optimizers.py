@@ -6,13 +6,13 @@ import numpy as np
 
 # Stochastic Gradient Descent (SGD)
 class SGD:
-    def __init__(self, lr, weight_decay=0.0):
+    def __init__(self, lr=0.01, weight_decay=0.0):
         self.lr = lr
         self.weight_decay = weight_decay
     def update(self, layers):
-        for i in layers:
-            i.w -= self.lr * (i.grad_w + self.weight_decay * i.w)
-            i.b -= self.lr * i.grad_b
+        for layer in layers:
+            layer.w -= self.lr * (layer.grad_w + self.weight_decay * layer.w)
+            layer.b -= self.lr * layer.grad_b
 
 # Momentum
 # v = beta * v + grad

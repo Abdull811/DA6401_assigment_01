@@ -6,30 +6,41 @@ Implements: Cross-Entropy, Mean Squared Error (MSE)
 import numpy as np
 
 class CrossEntropyLoss:
-    def forward(self, y_true, logits):
-        # Apply softmax to logits
+    def softmax(self, logits):
         exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))
-        probs = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
+        return exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
+
+    def forward(self, y_true, logits):
+
+        probs = self.softmax(logits)
+        self.probs = probs
 
         m = y_true.shape[0]
+
         if len(y_true.shape) > 1:
             y_true = np.argmax(y_true, axis=1)
 
-        # Compute loss
         loss = -np.mean(np.log(probs[np.arange(m), y_true] + 1e-9))
-        self.probs = probs
+
         return loss
 
     def backward(self, y_true, logits):
+
+        if not hasattr(self, "probs"):
+            self.probs = self.softmax(logits)
+
+        probs = self.probs.copy()
+
         m = y_true.shape[0]
+
         if len(y_true.shape) > 1:
             y_true = np.argmax(y_true, axis=1)
 
-        grad = self.probs.copy()
-        grad[np.arange(m), y_true] -= 1
-        grad /= m
-        return grad
+        probs[np.arange(m), y_true] -= 1
+        probs /= m
 
+        return probs
+    
 class MSELoss:
     def forward(self, y_true, logits):
         m = y_true.shape[0]

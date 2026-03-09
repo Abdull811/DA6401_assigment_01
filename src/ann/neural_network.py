@@ -74,19 +74,18 @@ class NeuralNetwork:
         return logits
 
     def backward(self, y_true, logits):
-
+        
         dz = self.loss_fn.backward(y_true, logits)
 
-        da = self.layers[-1].backward(dz, self.weight_decay)
+        for layer in reversed(self.layers):
+            dz = layer.backward(dz, weight_decay=0)
 
-        for i in reversed(range(len(self.activations))):
-            dz = self.activations[i].backward(da)
-            da = self.layers[i].backward(dz, self.weight_decay)
+        self.grad_W = []
+        self.grad_b = []
 
-        self.grad_W = [layer.grad_w for layer in self.layers]
-        self.grad_b = [layer.grad_b for layer in self.layers]
-
-        return self.grad_W, self.grad_b
+        for layer in self.layers:
+            self.grad_W.append(layer.grad_w)
+            self.grad_b.append(layer.grad_b)
 
     def evaluate(self, X, y):
 

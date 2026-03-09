@@ -87,14 +87,13 @@ def main(args=None):
             # Forward pass
             logits = model.forward(x_batch)
             # Compute loss
-            loss = model.loss_fn.forward(y_batch, logits)
-            epoch_loss += loss
-            num_batches += 1
-            
+            loss = model.loss_fn.forward(y_batch, logits)    
             # Backward pass
             model.backward(y_batch, logits)
             # Update weight
             optimizer.update(model.layers)
+            epoch_loss += loss
+            num_batches += 1
         
         if num_batches > 0:
             epoch_loss /= num_batches
