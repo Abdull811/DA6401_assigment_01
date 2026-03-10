@@ -5,8 +5,8 @@ This assigments a Multi-layer perceptron (MLP) neural network from acratch using
 
 ## Repository 
 - **GitHub Repository:** [https://github.com/Abdull811/DA6401_assigment_01.git]
-- **Weights & Biases Run Link:** View Run on W&B [https://wandb.ai/ge26z811-zan/da6401_Assigment_01_weight_bias/table?nw=nwuserge26z811]
-- **Weights & Biases Report:** [https://wandb.ai/ge26z811-zan/da6401_Assigment_01_weight_bias/reports/Weight-and-Biases-Report--VmlldzoxNjEzMTk1MQ]
+- **Weights & Biases Run Link:** View Run on W&B [https://wandb.ai/ge26z811-zan/da6401_Assigment_01_weight_bias/sweeps/nx4gbo3c/workspace?nw=nwuserge26z811]
+- **Weights & Biases Report:** [https://wandb.ai/ge26z811-zan/da6401_Assigment_01_weight_bias/reports/Weight-and-Biases-Report--VmlldzoxNjE2MDM0Nw]
 
   
 ## Learniing Objective
