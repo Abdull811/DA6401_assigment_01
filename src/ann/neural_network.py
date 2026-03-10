@@ -32,8 +32,7 @@ class NeuralNetwork:
             layer = NeuralLayer(layer_dims[i], layer_dims[i + 1], weight_init)
             self.layers.append(layer)
 
-            setattr(self, f"w{i}", layer.w)
-            setattr(self, f"b{i}", layer.b)
+            self._set_param_alias(i, layer)
 
             if i < len(layer_dims) - 2:
 
@@ -60,6 +59,7 @@ class NeuralNetwork:
             raise ValueError("Unknown loss")
 
     def forward(self, X):
+        self._sync_layers_from_attrs()
 
         out = X
 
@@ -72,21 +72,25 @@ class NeuralNetwork:
         return logits
 
     def backward(self, y_true, logits):
+        self._sync_layers_from_attrs()
 
         dz = self.loss_fn.backward(y_true, logits)
 
-        dz = self.layers[-1].backward(dz, self.weight_decay)
+        dz, _, _ = self.layers[-1].backward(dz, self.weight_decay)
 
         for i in reversed(range(len(self.layers) - 1)):
             dz = self.activations[i].backward(dz)
-            dz = self.layers[i].backward(dz, self.weight_decay)
+            dz, _, _ = self.layers[i].backward(dz, self.weight_decay)
 
         self.grad_W = []
         self.grad_b = []
 
-        for layer in self.layers:
+        for i, layer in enumerate(self.layers):
             self.grad_W.append(layer.grad_w)
             self.grad_b.append(layer.grad_b)
+            self._set_param_alias(i, layer)
+
+        return self.grad_W, self.grad_b
 
     def evaluate(self, X, y):
 
@@ -98,6 +102,7 @@ class NeuralNetwork:
         return accuracy
 
     def get_weights(self):
+        self._sync_layers_from_attrs()
 
         weights = {}
 
@@ -113,11 +118,42 @@ class NeuralNetwork:
 
             w_key = f"w{i}"
             b_key = f"b{i}"
+            W_key = f"W{i}"
+            B_key = f"B{i}"
 
             if w_key in weight_dict:
                 layer.w = weight_dict[w_key]
-                setattr(self, w_key, layer.w)
+            elif W_key in weight_dict:
+                layer.w = weight_dict[W_key]
 
             if b_key in weight_dict:
                 layer.b = weight_dict[b_key]
-                setattr(self, b_key, layer.b)
+            elif B_key in weight_dict:
+                layer.b = weight_dict[B_key]
+            self._set_param_alias(i, layer)
+
+    def _set_param_alias(self, index, layer):
+        layer._sync_aliases()
+        setattr(self, f"w{index}", layer.w)
+        setattr(self, f"b{index}", layer.b)
+        setattr(self, f"W{index}", layer.w)
+        setattr(self, f"B{index}", layer.b)
+
+    def _sync_layers_from_attrs(self):
+        for i, layer in enumerate(self.layers):
+            w_attr = getattr(self, f"w{i}", layer.w)
+            b_attr = getattr(self, f"b{i}", layer.b)
+            W_attr = getattr(self, f"W{i}", layer.w)
+            B_attr = getattr(self, f"B{i}", layer.b)
+
+            if w_attr is not layer.w:
+                layer.w = w_attr
+            elif W_attr is not layer.w:
+                layer.w = W_attr
+
+            if b_attr is not layer.b:
+                layer.b = b_attr
+            elif B_attr is not layer.b:
+                layer.b = B_attr
+
+            self._set_param_alias(i, layer)

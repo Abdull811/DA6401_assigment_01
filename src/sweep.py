@@ -1,6 +1,9 @@
 import wandb
 import sys
 import os
+
+os.environ["WANDB_MODE"] = "online"
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.train import main
 
@@ -13,6 +16,8 @@ sweep_config = {'method': 'random', 'metric': {'name': 'val_accuracy', 'goal': '
     'dataset': {'value': 'mnist'}, 'loss': {'value': 'cross_entropy'},
     'weight_decay': {'value': 0.0001}, 'weight_init': {'value': 'xavier'}}}
 
-sweep_id = wandb.sweep(sweep_config, project="da6401_Assigment_01_weight_bias")
+sweep_id = wandb.sweep(
+    sweep_config,
+    project="da6401_Assigment_01_weight_bias")
 wandb.agent(sweep_id, function=main, count=100)
 print("Sweep ID :", sweep_id)

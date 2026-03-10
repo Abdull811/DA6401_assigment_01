@@ -54,7 +54,7 @@ def evaluate_model(model, X_test, y_test):
               "precision": precision, "recall": recall, "f1": f1}
 
 def main():
-    wandb.init(project="da6401_Assigment_01_weight_bias")
+    wandb.init(project="da6401_Assigment_01_weight_bias", mode="disabled")
     args = parse_arguments()
     _, _, _, _, x_test, y_test = load_data(args.dataset)
 

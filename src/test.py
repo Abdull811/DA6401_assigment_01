@@ -1,12 +1,14 @@
-import numpy as np
 import argparse
-from sklearn.metrics import f1_score
-import sys
+import numpy as np
 import os
+import sys
+from sklearn.metrics import f1_score
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from ann.neural_network import NeuralNetwork
+from src.ann.neural_network import NeuralNetwork
+from src.utils.data_loader import load_data
+
 
 best_config = argparse.Namespace(
     dataset="mnist",
@@ -19,26 +21,24 @@ best_config = argparse.Namespace(
     num_layers=2,
     hidden_size=[64, 64],
     activation="relu",
-    weight_init="xavier"
+    weight_init="xavier",
 )
 
 
-# Initialize model
-model = NeuralNetwork(best_config)
+def main():
+    model = NeuralNetwork(best_config)
+    weights = np.load("src/best_model.npy", allow_pickle=True).item()
+    model.set_weights(weights)
 
-# Load trained weights
-weights = np.load("src/best_model.npy", allow_pickle=True).item()
+    _, _, _, _, x_test, y_test = load_data(best_config.dataset)
+    logits = model.forward(x_test)
+    y_pred_labels = np.argmax(logits, axis=1)
 
-model.set_weights(weights)
+    macro_f1 = f1_score(y_test, y_pred_labels, average="macro")
+    weighted_f1 = f1_score(y_test, y_pred_labels, average="weighted")
 
-# Random test data
-X_test = np.random.rand(100, 784)
-y_true = np.random.randint(0, 10, size=(100,))
+    print("Macro F1 Score:", macro_f1)
+    print("Weighted F1 Score:", weighted_f1)
 
-# Forward pass
-logits = model.forward(X_test)
-
-y_pred_labels = np.argmax(logits, axis=1)
-
-# Compute F1 score
-print("F1 Score:", f1_score(y_true, y_pred_labels, average="macro"))
+if __name__ == "__main__":
+    main()

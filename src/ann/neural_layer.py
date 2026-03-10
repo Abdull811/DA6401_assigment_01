@@ -17,14 +17,39 @@ class NeuralLayer:
         # gradients
         self.grad_w = np.zeros_like(self.w)
         self.grad_b = np.zeros_like(self.b)
+        self._sync_aliases()
+
+    def _sync_aliases(self):
+        self.W = self.w
+        self.B = self.b
+        self.grad_W = self.grad_w
+        self.grad_B = self.grad_b
+        self.dW = self.grad_w
+        self.db = self.grad_b
+
+    def _sync_primary_from_aliases(self):
+        W = getattr(self, "W", self.w)
+        B = getattr(self, "B", self.b)
+
+        if getattr(self, "w", self.w) is not self.w:
+            self.w = getattr(self, "w")
+        elif W is not self.w:
+            self.w = W
+
+        if getattr(self, "b", self.b) is not self.b:
+            self.b = getattr(self, "b")
+        elif B is not self.b:
+            self.b = B
 
     def forward(self, x):
-
+        self._sync_primary_from_aliases()
+        self._sync_aliases()
         self.x = x
         z = x @ self.w + self.b
         return z
 
-    def backward(self, dz, weight_decay):
+    def backward(self, dz, weight_decay=0.0):
+        self._sync_primary_from_aliases()
 
         self.grad_w = self.x.T @ dz
         self.grad_b = np.sum(dz, axis=0, keepdims=True)
@@ -33,5 +58,6 @@ class NeuralLayer:
             self.grad_w += weight_decay * self.w
 
         dx = dz @ self.w.T
+        self._sync_aliases()
 
-        return dx
+        return dx, self.grad_w, self.grad_b

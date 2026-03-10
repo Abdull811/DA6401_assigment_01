@@ -12,8 +12,12 @@ import wandb
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix 
 from src.utils.data_loader import load_data
-from ann.neural_network import NeuralNetwork
 from src.ann.optimizers import SGD, Momentum, NAG, RMSProp
+
+try:
+    from src.ann.neural_network import NeuralNetwork
+except ModuleNotFoundError:
+    from ann.neural_network import NeuralNetwork
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -29,6 +33,8 @@ def parse_arguments():
     parser.add_argument("-wd","--weight_decay", default=0.0001, type=float)
     parser.add_argument("-wi","--weight_init", default="xavier", choices=["random","xavier"])
     parser.add_argument("-wp","--wandb_project", default="da6401_Assigment_01_weight_bias")
+    parser.add_argument("--wandb_mode", default=os.environ.get("WANDB_MODE", "disabled"),
+                        choices=["online", "offline", "disabled"])
     parser.add_argument("--model_save_path", default="src/best_model.npy")
     return parser.parse_args()
        
@@ -39,8 +45,16 @@ def main(args=None):
     if args.num_layers != len(args.hidden_size):
         raise ValueError("num_layers must equal number of hidden_size values")
     
-    wandb.init(project=args.wandb_project or "da6401_Assigment_01_weight_bias", config=vars(args), mode="disabled")
+    wandb.init(
+        project=args.wandb_project or "da6401_Assigment_01_weight_bias",
+        config=vars(args),
+        mode=args.wandb_mode,
+    )
     config = wandb.config
+
+    # When train.py is launched by wandb.agent, pull sweep overrides back into args.
+    for key, value in dict(config).items():
+        setattr(args, key, value)
 
     # Load Dataset
     x_train, y_train, x_val, y_val, x_test, y_test = load_data(args.dataset)
