@@ -33,9 +33,33 @@ def parse_arguments():
 
     return parser.parse_args()
 
+def resolve_model_path(model_path):
+    candidates = [model_path, "src/best_model.npy", "best_model.npy"]
+
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+
+    raise FileNotFoundError("Could not find model checkpoint")
+
+def build_args_from_weights(args, weights):
+    layer_indices = sorted(
+        int(key[1:]) for key in weights.keys()
+        if key.startswith("w") and key[1:].isdigit()
+    )
+
+    if layer_indices:
+        args.hidden_size = [weights[f"w{i}"].shape[1] for i in layer_indices[:-1]]
+        args.num_layers = len(args.hidden_size)
+
+    return args
+
 def load_model(args):
-    model = NeuralNetwork(args)
+    args.model_path = resolve_model_path(args.model_path)
     weights = np.load(args.model_path, allow_pickle=True).item()
+    args = build_args_from_weights(args, weights)
+
+    model = NeuralNetwork(args)
     model.set_weights(weights)
 
     return model   
