@@ -13,6 +13,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from src.utils.data_loader import load_data
 from src.ann.neural_network import NeuralNetwork
 
+# Parse command line arguments for model evaluation
 def parse_arguments():
     
     parser = argparse.ArgumentParser(description='Run inference on test set')
@@ -45,8 +46,7 @@ def resolve_model_path(model_path):
 def build_args_from_weights(args, weights):
     layer_indices = sorted(
         int(key[1:]) for key in weights.keys()
-        if key.startswith("w") and key[1:].isdigit()
-    )
+        if key.startswith("w") and key[1:].isdigit())
 
     if layer_indices:
         args.hidden_size = [weights[f"w{i}"].shape[1] for i in layer_indices[:-1]]
@@ -54,6 +54,7 @@ def build_args_from_weights(args, weights):
 
     return args
 
+# Resolve model path, load weights, build config and initialize model
 def load_model(args):
     args.model_path = resolve_model_path(args.model_path)
     weights = np.load(args.model_path, allow_pickle=True).item()
@@ -64,6 +65,7 @@ def load_model(args):
 
     return model   
 
+# Run inference on the test set and compute evaluation metrics
 def evaluate_model(model, X_test, y_test): 
     logits = model.forward(X_test)
     y_pred = np.argmax(logits, axis=1)
@@ -77,6 +79,7 @@ def evaluate_model(model, X_test, y_test):
     return { "logits": logits, "loss": loss, "accuracy": accuracy, 
               "precision": precision, "recall": recall, "f1": f1}
 
+# Main function to run inference and print results 
 def main():
     wandb.init(project="da6401_Assigment_01_weight_bias", mode="disabled")
     args = parse_arguments()
@@ -89,6 +92,7 @@ def main():
     print(f"Accuracy: {results['accuracy']:.4f}")
     print(f"Precision: {results['precision']:.4f}")
     print(f"Recall: {results['recall']:.4f}")
+    print(f"F1 Score: {results['f1']:.4f}")
     print(f"F1-score: {results['f1']:.4f}")
     print("Evaluation complete!")
 

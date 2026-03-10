@@ -26,8 +26,7 @@ def resolve_model_path():
 def build_config_from_weights(weights):
     layer_indices = sorted(
         int(key[1:]) for key in weights.keys()
-        if key.startswith("w") and key[1:].isdigit()
-    )
+        if key.startswith("w") and key[1:].isdigit())
 
     if not layer_indices:
         raise ValueError("No layer weights found in checkpoint")
