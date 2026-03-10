@@ -31,6 +31,7 @@ DA6401_ASSIGMENT_01
 │   ├── train.py                          # Training script for the neural network
 │   ├── sweep.py                          # Hyperparameter sweep experiments (100 runs)
 │   ├── inference.py                      # Model evaluation and performance metrics
+│   ├── test.py
 │   │
 │   ├── ann                               # Neural network implementation
 │   │   ├── __init__.py
